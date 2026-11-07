@@ -93,9 +93,22 @@ Tested in `tests/test_connector.py::test_sao_goncalo_2019_2020_reproducible`.
 | Use SINASC-based coverage as a labelled sensitivity check | Rank or judge municipal performance on this data alone |
 | | Treat a change in reporting as a confirmed change in uptake |
 
-## 10. Privacy and AI use
+## 10. Derived values and signals (Milestone 4)
+Signals are **review triggers** computed by `signalcheck.signals` (thresholds in `config/signal_thresholds.toml`). They are packaged as evidence packets that follow `schemas/evidence_packet.schema.json`.
+
+| Derived label | Meaning |
+|---|---|
+| `observed_change` | Arithmetic on observed values (e.g., relative change in doses) |
+| `back_calculated_not_observed` | doses ÷ published coverage × 100. **Not observed, and not SINASC** |
+| `mathematical_decomposition` | Identity of published values; **cannot establish cause** |
+| `state_benchmark_weighted` | Ratio of summed doses over all units (not an average of percentages) |
+| `independent_reference_change` | Change in SINASC births. **Context only; never used to classify a change** |
+
+Classifications: `recorded_dose_change`, `reported_coverage_change`, `implausible_coverage`, `state_benchmark_divergence`, `small_denominator_caution`, `insufficient_evidence`. A statewide scan of 644 municipality-year pairs raised 173 recorded-dose-change, 188 reported-coverage-change, 347 implausible-coverage, 205 state-divergence and 38 small-denominator signals. Reference example: `docs/examples/evidence_packet_330490_2019_2020.json`.
+
+## 11. Privacy and AI use
 - The data is aggregate (municipality × year counts and percentages) and contains no personal identifiers.
 - In later milestones, **only these aggregate values** may be sent to the Claude API. No identifiable health records are used at any stage.
 
-## 11. Citation
+## 12. Citation
 Ministério da Saúde, Brasil. DATASUS TabNet: *Imunizações – Cobertura* and *Imunizações – Doses Aplicadas* (SI-PNI/CGPNI/DEIDT/SVS/MS, 1994–2022), and *Nascidos Vivos – Rio de Janeiro* (SINASC/CGIAE/SVSA). Accessed 7 Nov 2026 via http://tabnet.datasus.gov.br/.

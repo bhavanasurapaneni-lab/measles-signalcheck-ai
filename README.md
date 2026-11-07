@@ -5,8 +5,9 @@ investigate drops in measles first-dose coverage and tell real declines apart fr
 data-quality problems. It uses official public data (Brazil's SI-PNI, with WHO/UNICEF
 estimates for cross-checking), Python, Streamlit and the Claude API.
 
-> **Status:** Milestone 3 complete: a validated data connector for Brazil SI-PNI (Rio de Janeiro,
-> 2015–2022) with a data card and 29 automated tests. No dashboard or Claude API integration yet.
+> **Status:** Milestone 4 complete: validated Brazil SI-PNI connector (Rio de Janeiro, 2015–2022),
+> deterministic signal rules and schema-validated evidence packets, with 63 automated tests.
+> No dashboard or Claude API integration yet. Example packet: `docs/examples/`.
 > See `PROJECT_PLAN.md`, `DATA_CARD.md`, `DATA_SOURCES.md`, `PROJECT_DECISIONS.md` and
 > `ANTHROPIC_ROLE_ALIGNMENT.md`.
 

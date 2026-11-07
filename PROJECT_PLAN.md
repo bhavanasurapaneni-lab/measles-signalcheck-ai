@@ -45,13 +45,25 @@ Python 3.12 · pandas · Streamlit · Plotly · Claude API (`anthropic`) · pyth
 - [x] **1. Local tooling:** Python 3.12.10, Git 2.56.0, `.venv`, initial commit
 - [x] **2. Data discovery & validation:** `DATA_SOURCES.md`, `PROJECT_DECISIONS.md`, `ANTHROPIC_ROLE_ALIGNMENT.md`
 - [x] **3. Data acquisition, connector & data card** (7 Nov 2026): `BrazilSIPNIConnector`, canonical schema, coverage safeguards, `DATA_CARD.md`, 29/29 tests pass
-- [ ] **4. Signal detection** *(proposed scope below; not started)*: numerator/denominator decomposition, abrupt-change, implausible-value (>100%, swings), consistency with the state total; pytest with real cases plus labelled injected-anomaly fixtures
+- [x] **4. Deterministic signals & evidence packets** (7 Nov 2026): rules R1–R5 + `insufficient_evidence`, configurable thresholds, weighted state benchmark, labelled arithmetic decomposition, schema-validated packets with grounding and language checks; 63/63 tests pass
 - [ ] **5. Claude integration & evaluation:** evidence packet, versioned prompt, grounding validator, evaluation set and results report
 - [ ] **6. Streamlit app & security pack:** filters, charts, signal table, "Draft investigation brief", export; `docs/SECURITY_AND_GOVERNANCE.md`
 - [ ] **7. Reusable assets & training:** reference design, adapter guide (WHO admin2 / DHIS2 format), prompt and eval templates, workshop/tabletop kit, field notes
 - [ ] **8. Publish to GitHub** *(only with owner approval)*
 
-## Milestone 4: proposed scope (awaiting approval)
+## Milestone 5: proposed scope (awaiting approval)
+**Goal:** Claude turns **one validated evidence packet** into a short investigation brief, and an evaluation harness measures whether the brief is grounded, cautious and useful. No UI and no deployment.
+
+1. **Prompt and output contract:** a versioned system prompt (`prompts/brief_v1.md`). The packet is passed as data inside clearly delimited tags and treated as untrusted. Output is structured JSON: summary, observations (each citing F/D/S IDs), what the data cannot show, suggested checks, and limitations. Claude may only restate packet facts and propose *checks*, never causes.
+2. **Client:** `src/signalcheck/brief.py`, which calls the Claude API (model from `.env`, default `claude-opus-5-5`) with structured output. Its only input is the packet: no raw files and no free text.
+3. **Post-validation:** reuse the M4 grounding, language and reference checks on the brief. Reject and report, rather than auto-repair, any brief that fails.
+4. **Evaluation set:** about 12 real packets (the 5 reference cases, stable controls, small-denominator and implausible cases) plus adversarial packets (for example a unit name containing an instruction, or an extreme value). The rubric scores grounding, absence of causal claims, coverage of limitations, and actionability. Deterministic checks are the gate; an optional model-graded rubric is reported separately.
+5. **Prioritisation:** a transparent ordering of signals within a packet (no ML), because statewide signal counts are high.
+6. **Security notes:** what is sent to the API (aggregate packet only), key handling, logging (no packets logged by default), and the provider data-use statement.
+
+**Acceptance criteria:** 100% of evaluation briefs pass the grounding and language checks, or are correctly rejected. Results go in `evals/results/` with the model, prompt version and config hash. Cost and latency are recorded. Live API tests are opt-in (they need a key), and offline tests use recorded responses.
+
+## Milestone 4: original scope (completed)
 **Goal:** deterministic, tested signal rules that turn canonical observations into an **evidence packet** (JSON, each fact with an ID). No Claude API and no UI.
 
 **Signals** (each states what it can and cannot mean):

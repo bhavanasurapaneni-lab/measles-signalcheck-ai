@@ -5,6 +5,27 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 
 ---
 
+## D-019 · Evidence packet schema validated without a new dependency (Accepted, 7 Nov 2026)
+- **Decision:** the packet format is documented as standard JSON Schema (`schemas/evidence_packet.schema.json`). It is enforced by `jsonschema_lite.py`, a roughly 60-line validator for the subset of keywords used, which **raises on any keyword it doesn't support** so it can't drift from the schema.
+- **Alternative:** add the `jsonschema` package. That's reasonable later, but it needs an install and approval.
+- On top of the structure check, packets must pass: every reference resolves, every number in the text is grounded, there's no causal or uptake language, and no forbidden classification is used.
+
+## D-018 · State benchmark = ratio of summed doses (weighted) (Accepted, 7 Nov 2026)
+- **Decision:** the state's relative dose change is Σdoses(y2)/Σdoses(y1) − 1 over the units observed in both years. State coverage, where shown, is Σdoses / Σ(back-calculated denominators).
+- **Evidence:** the weighted reconstruction is within 0.3 points of TabNet's published state totals (2019–2021). The **unweighted** mean of municipal percentages would be 72.72% for 2020, against the published 61.61%. A test guards this.
+
+## D-017 · Signals are review triggers; thresholds are configurable judgement calls (Accepted, 7 Nov 2026)
+- **Decision:** five rules (R1–R5) plus `insufficient_evidence`, with thresholds in `config/signal_thresholds.toml`. Each packet records the SHA-256 of the config. Only consecutive years are compared, and missing values become `insufficient_evidence`, never zero.
+- **Observed volume (reported, not tuned):** in 644 municipality-year pairs, 173 have a ≥30% change in recorded doses and 347 have at least one value above 100%. Rio de Janeiro's municipal data is volatile, so Milestones 5 and 6 need **prioritisation and grouping**. Thresholds must not be tuned to make the counts look tidy.
+
+## D-016 · No numerator- or denominator-driven classification; decomposition labelled as arithmetic (Accepted, 7 Nov 2026)
+- **Correction to the brief:** the connector does **not** calculate an implied denominator. SINASC births are downloaded separately from the official SINASC source, so they *are* independent. They are **not compatible** with the official denominator, though: they're assigned by the mother's residence, while doses are assigned to where they were recorded, and the official denominator is an older, unpublished extract. **So SINASC is reported only as an `independent_reference` and is never used to classify a change.**
+- Milestone 4 *does* back-calculate denominators (doses ÷ coverage) for one purpose only: a **mathematical decomposition** of reported coverage (ln C₂/C₁ = ln N₂/N₁ − ln Den₂/Den₁). These values are labelled `back_calculated_not_observed`, and the decomposition `mathematical_decomposition`, with "cannot establish cause".
+- **Forbidden classifications** (rejected by the validator): `numerator_driven`, `denominator_driven`, `uptake_decline`, `reporting_failure`.
+
+## D-015 · Real cases vs synthetic fixtures are separated (Accepted, 7 Nov 2026)
+- **Decision:** synthetic anomalies exist only in tests, carry `source_id = "SYNTHETIC_TEST_FIXTURE"`, and are run through `evaluate()` only. They're never wrapped in a packet that cites real source files. Real-case tests use observed values only.
+
 ## D-014 · Coverage is calculated only behind explicit safeguards (Accepted, 7 Nov 2026)
 - **Decision:** `sensitivity_coverage()` only runs for a declared compatible pair (doses ÷ previous-year SINASC births), with both values present, a denominator greater than 0, and comparable years. Every result carries a "not official coverage" label. Official coverage is never recalculated.
 - **Alternative:** derive the official denominator by working backwards from published coverage. Rejected, because it isn't an independent, valid denominator.

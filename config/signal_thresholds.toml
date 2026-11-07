@@ -1,0 +1,39 @@
+# Signal thresholds for Measles SignalCheck AI (Milestone 4).
+#
+# These are REVIEW TRIGGERS, not epidemiological standards. They decide which changes
+# are surfaced for a human to investigate. Changing them changes which flags appear,
+# never the underlying observations. Every packet records the hash of this file.
+
+version = "1.0"
+
+[comparison]
+# Only compare consecutive years (like-for-like annual reporting periods).
+consecutive_years_only = true
+
+[recorded_dose_change]
+# Flag when recorded doses change by at least this many percent (either direction)
+# between consecutive comparable years. 30% is far outside typical year-to-year
+# variation in birth cohorts (RJ statewide SINASC births changed between -7.5% and
+# +1.9% a year in 2014-2021), so it isolates changes that need explanation.
+min_abs_relative_change_pct = 30.0
+
+[reported_coverage_change]
+# Flag when published coverage moves by at least this many percentage points between
+# consecutive years ("unusual swing").
+min_abs_change_pp = 30.0
+
+[implausible_coverage]
+# Published coverage above this value is arithmetically possible (numerator and
+# denominator are attributed differently) but implausible as true coverage.
+upper_pct = 100.0
+
+[state_benchmark]
+# Flag when a municipality's relative dose change differs from the state's
+# (ratio of summed doses, i.e. weighted) by at least this many percentage points.
+min_abs_divergence_pp = 25.0
+
+[small_denominator]
+# Units with fewer reference births than this produce volatile percentages.
+min_reference_births = 100
+# Relative changes computed from fewer base-year doses than this are volatile.
+min_base_doses = 50

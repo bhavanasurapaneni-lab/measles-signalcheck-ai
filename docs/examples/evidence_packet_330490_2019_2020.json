@@ -1,0 +1,323 @@
+{
+  "packet_version": "1.0",
+  "generated_by": {
+    "rules_version": "1.0",
+    "config_version": "1.0",
+    "config_sha256": "96bee1f064cb7fca725776d49794fbf761cee63b9daaa81294a00ca63b28c5de"
+  },
+  "source": {
+    "source_id": "brazil_sipni_tabnet",
+    "data_card": "DATA_CARD.md",
+    "files": [
+      {
+        "file": "rj_mun_coverage_triplice_viral_d1_2015_2022.csv",
+        "sha256": "1877caa0c0b41a5f34ef6d2e19329d95c7c77b41739d52179e3226abb05a8f14",
+        "retrieved_at_utc": "2026-11-07T23:16:49+00:00"
+      },
+      {
+        "file": "rj_mun_doses_triplice_viral_scr_d1_age1_2015_2022.csv",
+        "sha256": "c5fe40445a7863409d5f85e35cddec572fa208f7a2ffab73bb7c48dfee5d3119",
+        "retrieved_at_utc": "2026-11-07T23:16:54+00:00"
+      },
+      {
+        "file": "rj_mun_sinasc_live_births_residence_2014_2021.csv",
+        "sha256": "1364693f32e7608c740fa1b58c2c36d151d8d995786d3cfedbb00d784c64e4ac",
+        "retrieved_at_utc": "2026-11-07T23:16:59+00:00"
+      }
+    ]
+  },
+  "scope": {
+    "unit_code": "330490",
+    "unit_name": "SAO GONCALO",
+    "admin1_code": "33",
+    "year_from": 2019,
+    "year_to": 2020,
+    "comparable": true,
+    "system_transitions_crossed": []
+  },
+  "facts": [
+    {
+      "id": "F1",
+      "measure": "doses_administered",
+      "unit_code": "330490",
+      "year": 2019,
+      "value": 13396.0,
+      "unit": "count",
+      "attribution": "place_of_recording",
+      "source_file": "rj_mun_doses_triplice_viral_scr_d1_age1_2015_2022.csv",
+      "role": "observed"
+    },
+    {
+      "id": "F2",
+      "measure": "doses_administered",
+      "unit_code": "330490",
+      "year": 2020,
+      "value": 4096.0,
+      "unit": "count",
+      "attribution": "place_of_recording",
+      "source_file": "rj_mun_doses_triplice_viral_scr_d1_age1_2015_2022.csv",
+      "role": "observed"
+    },
+    {
+      "id": "F3",
+      "measure": "published_coverage_pct",
+      "unit_code": "330490",
+      "year": 2019,
+      "value": 121.66,
+      "unit": "percent",
+      "attribution": "as_published",
+      "source_file": "rj_mun_coverage_triplice_viral_d1_2015_2022.csv",
+      "role": "observed"
+    },
+    {
+      "id": "F4",
+      "measure": "published_coverage_pct",
+      "unit_code": "330490",
+      "year": 2020,
+      "value": 35.77,
+      "unit": "percent",
+      "attribution": "as_published",
+      "source_file": "rj_mun_coverage_triplice_viral_d1_2015_2022.csv",
+      "role": "observed"
+    },
+    {
+      "id": "F5",
+      "measure": "live_births",
+      "unit_code": "330490",
+      "year": 2018,
+      "value": 10969.0,
+      "unit": "count",
+      "attribution": "mother_residence",
+      "source_file": "rj_mun_sinasc_live_births_residence_2014_2021.csv",
+      "role": "independent_reference"
+    },
+    {
+      "id": "F6",
+      "measure": "live_births",
+      "unit_code": "330490",
+      "year": 2019,
+      "value": 10432.0,
+      "unit": "count",
+      "attribution": "mother_residence",
+      "source_file": "rj_mun_sinasc_live_births_residence_2014_2021.csv",
+      "role": "independent_reference"
+    }
+  ],
+  "derived": [
+    {
+      "id": "D1",
+      "name": "reference_births_relative_change_pct",
+      "method": "(births[y2-1] / births[y1-1] - 1) x 100; SINASC by mother's residence",
+      "inputs": [
+        "F5",
+        "F6"
+      ],
+      "value": -4.8956,
+      "unit": "percent",
+      "label": "independent_reference_change"
+    },
+    {
+      "id": "D2",
+      "name": "doses_relative_change_pct",
+      "method": "(doses[y2] / doses[y1] - 1) x 100",
+      "inputs": [
+        "F1",
+        "F2"
+      ],
+      "value": -69.4237,
+      "unit": "percent",
+      "label": "observed_change"
+    },
+    {
+      "id": "D3",
+      "name": "state_doses_relative_change_pct",
+      "method": "(sum doses[y2] / sum doses[y1] - 1) x 100 over 92 units observed in both years (weighted by doses; not an average of municipal percentages)",
+      "inputs": [],
+      "value": -36.4042,
+      "unit": "percent",
+      "label": "state_benchmark_weighted"
+    },
+    {
+      "id": "D4",
+      "name": "divergence_from_state_pp",
+      "method": "unit relative dose change - state relative dose change",
+      "inputs": [
+        "D2",
+        "D3"
+      ],
+      "value": -33.0196,
+      "unit": "percentage_points",
+      "label": "observed_change"
+    },
+    {
+      "id": "D5",
+      "name": "published_coverage_change_pp",
+      "method": "coverage[y2] - coverage[y1]",
+      "inputs": [
+        "F3",
+        "F4"
+      ],
+      "value": -85.89,
+      "unit": "percentage_points",
+      "label": "observed_change"
+    },
+    {
+      "id": "D6",
+      "name": "back_calculated_denominator_y1",
+      "method": "doses[y1] / coverage[y1] x 100 (from published, rounded values)",
+      "inputs": [
+        "F1",
+        "F3"
+      ],
+      "value": 11011.0143,
+      "unit": "count",
+      "label": "back_calculated_not_observed"
+    },
+    {
+      "id": "D7",
+      "name": "back_calculated_denominator_y2",
+      "method": "doses[y2] / coverage[y2] x 100 (from published, rounded values)",
+      "inputs": [
+        "F2",
+        "F4"
+      ],
+      "value": 11450.9365,
+      "unit": "count",
+      "label": "back_calculated_not_observed"
+    },
+    {
+      "id": "D8",
+      "name": "share_of_log_coverage_change_from_recorded_doses",
+      "method": "ln(doses[y2]/doses[y1]) / ln(coverage[y2]/coverage[y1]); identity: ln(C2/C1) = ln(N2/N1) - ln(Den2/Den1) with back-calculated denominators",
+      "inputs": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "D6",
+        "D7"
+      ],
+      "value": 0.968,
+      "unit": "share",
+      "label": "mathematical_decomposition"
+    }
+  ],
+  "signals": [
+    {
+      "id": "S1",
+      "classification": "recorded_dose_change",
+      "rule_id": "R1_recorded_dose_change",
+      "threshold": {
+        "min_abs_relative_change_pct": 30.0
+      },
+      "statement": "Recorded MMR1 doses changed by -69.4% from 2019 (13396) to 2020 (4096).",
+      "evidence": [
+        "F1",
+        "F2",
+        "D2"
+      ],
+      "cautions": [
+        "Context: the independent SINASC reference series (D1) changed by -4.9%. It is residence-based and is not the official denominator, so it cannot classify this change as numerator- or denominator-driven."
+      ],
+      "cannot_conclude": [
+        "Whether the number of children actually vaccinated changed.",
+        "Whether the change reflects vaccination activity, recording, or transmission of records.",
+        "Any cause of the change."
+      ]
+    },
+    {
+      "id": "S2",
+      "classification": "state_benchmark_divergence",
+      "rule_id": "R4_state_benchmark",
+      "threshold": {
+        "min_abs_divergence_pp": 25.0
+      },
+      "statement": "The change in recorded doses (-69.4%) differs from the statewide change (-36.4%) by -33.0 percentage points.",
+      "evidence": [
+        "D2",
+        "D3",
+        "D4"
+      ],
+      "cautions": [],
+      "cannot_conclude": [
+        "Why this municipality differs from the state.",
+        "Whether the difference reflects vaccination activity or recording."
+      ]
+    },
+    {
+      "id": "S3",
+      "classification": "implausible_coverage",
+      "rule_id": "R3_implausible_coverage",
+      "threshold": {
+        "upper_pct": 100.0
+      },
+      "statement": "Published coverage in 2019 was 121.66%, above 100%.",
+      "evidence": [
+        "F3"
+      ],
+      "cautions": [
+        "Values above 100% can arise when the numerator and denominator are attributed to different places; the value is neither corrected nor interpreted."
+      ],
+      "cannot_conclude": [
+        "Which input is inaccurate: numerator and denominator are attributed differently (place of recording vs residence).",
+        "The true coverage level."
+      ]
+    },
+    {
+      "id": "S4",
+      "classification": "reported_coverage_change",
+      "rule_id": "R2_reported_coverage_change",
+      "threshold": {
+        "min_abs_change_pp": 30.0
+      },
+      "statement": "Published coverage changed by -85.89 percentage points, from 121.66% in 2019 to 35.77% in 2020.",
+      "evidence": [
+        "F3",
+        "F4",
+        "D5"
+      ],
+      "cautions": [
+        "Mathematical decomposition (D8): the log change in recorded doses equals 0.97 times the log change in published coverage; the back-calculated denominator accounts for the remainder, which can be negative. This is an identity of published values and cannot establish cause."
+      ],
+      "cannot_conclude": [
+        "Whether true coverage changed: the official denominator is unpublished.",
+        "Whether the change is driven by the numerator or the denominator in reality; the decomposition is arithmetic only.",
+        "Any cause of the change."
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "L1",
+      "text": "Values are recorded administrative activity, not confirmed vaccination uptake."
+    },
+    {
+      "id": "L2",
+      "text": "The official coverage denominator is unpublished; denominators shown here are back-calculated from published values or come from an independent reference series."
+    },
+    {
+      "id": "L3",
+      "text": "Doses are attributed to the municipality where they were recorded; SINASC births to the mother's residence."
+    },
+    {
+      "id": "L4",
+      "text": "Comparisons are limited to 2015-2022 (legacy SI-PNI on TabNet); a reporting-system transition began in 2023."
+    },
+    {
+      "id": "L5",
+      "text": "2020-2021 may combine service disruption with registration-system effects; the data cannot separate them."
+    },
+    {
+      "id": "L6",
+      "text": "No facility-level reporting completeness is available in this source."
+    }
+  ],
+  "prohibited_interpretations": [
+    "Stating that fewer (or more) children were vaccinated.",
+    "Attributing a change to a cause (e.g. vaccine hesitancy, supply shortages, staffing, missed vaccinations, reporting failures) without independent evidence.",
+    "Describing a back-calculated denominator as observed or as verified SINASC births.",
+    "Classifying a change as numerator-driven or denominator-driven.",
+    "Presenting a recalculated percentage as official coverage.",
+    "Comparing values across the 2023 reporting-system transition."
+  ]
+}
