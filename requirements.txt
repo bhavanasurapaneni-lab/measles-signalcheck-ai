@@ -1,0 +1,15 @@
+# Core data handling
+pandas>=2.2
+
+# Dashboard and charts
+streamlit>=1.40
+plotly>=5.24
+
+# Claude API
+anthropic>=0.40
+
+# Load secrets from .env
+python-dotenv>=1.0
+
+# Testing
+pytest>=8.0
