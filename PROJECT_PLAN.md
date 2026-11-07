@@ -1,53 +1,93 @@
 # Project Plan — Measles SignalCheck AI
 
-## Goal
+*Revised 7 Nov 2026 after the Milestone 2 data review. Decisions are in `PROJECT_DECISIONS.md`.*
 
-Give a district immunization officer a simple tool to answer:
-1. *Where did measles vaccination coverage change meaningfully?*
-2. *Is that change real, or might it be a data-quality problem?*
-3. *What should I check next?*
+## Problem statement
+In Rio de Janeiro state (Brazil), MMR first-dose coverage recorded in the national
+immunization system (SI-PNI) fell from **96.6% in 2019 to 61.6% in 2020 and 59.5% in 2021**.
+Health regions moved very differently: Metropolitana II went from 100.1% to 35.6%, while
+Serrana went from 98.5% to 82.6%. Nationally, WHO/UNICEF estimates confirm a real fall
+(96% in 2015 → 73% in 2021). Below the national level, though, a coordinator has to decide **for each
+health region and municipality** whether a drop reflects fewer children vaccinated, a
+changed denominator, or a recording/reporting artefact, and what to check first.
+
+**Measles SignalCheck AI** computes these signals transparently and uses Claude to turn
+them into a short, cited **investigation brief**: what changed, the possible explanations
+the data supports or rules out, what it cannot tell you, and the next checks to make.
 
 ## Users
+- **Primary:** state, regional and municipal immunization coordinators (non-technical).
+- **Secondary:** epidemiologists and M&E staff; portfolio reviewers.
 
-- **Primary:** District immunization officers (non-technical).
-- **Secondary:** Portfolio reviewers / hiring managers.
+## Success measures
+1. **Grounding:** 100% of numbers in a brief can be traced to the evidence packet (automated check).
+2. **Correct classification** of each evaluation case's signal type (numerator-driven, denominator-driven, implausible value, abrupt drop) by the deterministic layer: ≥ 90% on the case set.
+3. **No unsupported causal claims:** 0 in the evaluation set (rubric plus pattern checks).
+4. **Usefulness:** an independent reviewer (a peer, or the owner acting as reviewer) rates briefs as "actionable" on ≥ 80% of cases using the published rubric.
+5. **Reproducibility:** a fresh clone reproduces all results with documented commands.
+
+## Architecture (planned)
+```
+TabNet exports (raw, dated, hashed)
+   → adapter → canonical table (unit, year, doses, target, coverage, source)
+   → deterministic signal checks (Python, pytest-tested)
+   → evidence packet (JSON, every fact has an ID)
+   → Claude API (versioned prompt; must cite IDs; must state limits)
+   → grounding validator (rejects numbers not in the packet)
+   → Streamlit view + Markdown brief export (labelled "advisory")
+```
 
 ## Tech stack
-
-| Purpose            | Tool                          |
-|--------------------|-------------------------------|
-| Language           | Python 3.11+                  |
-| Data handling      | pandas                        |
-| Dashboard          | Streamlit                     |
-| Charts             | Plotly                        |
-| AI explanations    | Claude API (`anthropic` SDK)  |
-| Secrets            | `.env` file + python-dotenv   |
-| Tests              | pytest                        |
-| Version control    | Git (+ GitHub later)          |
+Python 3.12 · pandas · Streamlit · Plotly · Claude API (`anthropic`) · python-dotenv · pytest · Git
 
 ## Milestones
+- [x] **0. Environment & scaffolding**
+- [x] **1. Local tooling:** Python 3.12.10, Git 2.56.0, `.venv`, initial commit
+- [x] **2. Data discovery & validation:** `DATA_SOURCES.md`, `PROJECT_DECISIONS.md`, `ANTHROPIC_ROLE_ALIGNMENT.md`
+- [x] **3. Data acquisition, connector & data card** (7 Nov 2026): `BrazilSIPNIConnector`, canonical schema, coverage safeguards, `DATA_CARD.md`, 29/29 tests pass
+- [ ] **4. Signal detection** *(proposed scope below; not started)*: numerator/denominator decomposition, abrupt-change, implausible-value (>100%, swings), consistency with the state total; pytest with real cases plus labelled injected-anomaly fixtures
+- [ ] **5. Claude integration & evaluation:** evidence packet, versioned prompt, grounding validator, evaluation set and results report
+- [ ] **6. Streamlit app & security pack:** filters, charts, signal table, "Draft investigation brief", export; `docs/SECURITY_AND_GOVERNANCE.md`
+- [ ] **7. Reusable assets & training:** reference design, adapter guide (WHO admin2 / DHIS2 format), prompt and eval templates, workshop/tabletop kit, field notes
+- [ ] **8. Publish to GitHub** *(only with owner approval)*
 
-- [x] **0. Environment & scaffolding** — folders, README, plan, requirements, .gitignore, .env.example
-- [x] **1. Local tooling** — install Python 3.11+ and Git, create virtual env, `git init`
-  (Python 3.12.10, Git 2.56.0, `.venv` with all requirements installed; initial commit created)
-- [ ] **2. Data acquisition** — choose WHO dataset(s), download to `data/raw/`, document source & date
-- [ ] **3. Data cleaning** — load, standardise columns, save to `data/processed/`
-- [ ] **4. Signal detection** — rules for coverage changes and data-quality flags, with tests
-- [ ] **5. Claude integration** — prompt that explains a flagged signal and suggests follow-up checks
-- [ ] **6. Streamlit dashboard** — filters, charts, signal table, "Explain with AI" button
-- [ ] **7. Polish & publish** — screenshots, README walkthrough, push to GitHub (with approval)
+## Milestone 4: proposed scope (awaiting approval)
+**Goal:** deterministic, tested signal rules that turn canonical observations into an **evidence packet** (JSON, each fact with an ID). No Claude API and no UI.
 
-## Initial signal ideas (to refine in Milestone 4)
+**Signals** (each states what it can and cannot mean):
+1. **Recorded-dose drop:** relative change in `doses_administered` between comparable years, above a documented threshold (e.g., −30%).
+2. **Driver of the coverage change:** dose change vs SINASC birth change, classified as *numerator-driven*, *denominator-driven*, *both* or *unclear*.
+3. **Implausible published value:** coverage >100%, or a year-to-year swing of more than X points.
+4. **Out of line with the state:** a municipality's dose change differs strongly from the statewide change.
+5. **Small-population caution:** flag units under 100 births, where percentages are volatile.
 
-- Year-over-year coverage drop greater than N percentage points
-- Coverage reported above 100%
-- Missing years in a time series
-- Large gap between MCV1 and MCV2 coverage
-- Large gap between administrative and WUENIC estimates
+**Acceptance criteria:** every signal is unit-tested on real cases (São Gonçalo, Niterói, Trajano de Moraes) and on **clearly labelled injected-anomaly fixtures** for recall. Thresholds are documented in a config file. The evidence packet validates against a schema and contains only aggregate values. Signals use neutral wording ("recorded doses fell 69%") and never causal wording.
+
+## Milestone 3: original scope (completed)
+**Goal:** a reproducible, documented raw-data snapshot for Rio de Janeiro state, loaded into the canonical schema and checked for internal consistency. No application code beyond loading and validation scripts.
+
+**In scope**
+1. Export from DATASUS TabNet (public, no login), **Tríplice Viral D1**, 2015–2022:
+   - coverage (%) by health region (CIR) and by municipality, RJ state;
+   - doses applied by the same units.
+2. Save raw files unchanged in `data/raw/brazil_sipni/`, with a `manifest.json` recording the URL, query selections, retrieval date and SHA-256 hash of each file.
+3. Write a loader (adapter) to the canonical schema, keeping the Portuguese names and IBGE codes.
+4. Derive the implied denominator (doses ÷ coverage) and document it as *derived*.
+5. Write `docs/DATA_CARD.md`: source, definitions, the TabNet caveat ("do not use the TOTAL row/column"), the 2023+ break, known limitations.
+
+**Acceptance criteria**
+- [ ] Raw files and manifest present; hashes match; `data/` stays git-ignored.
+- [ ] Canonical table has the expected units (9 health regions; 92 municipalities, or a documented reason if different) and 8 years each.
+- [ ] Recomputed coverage (doses ÷ derived denominator) matches TabNet within ±0.1 pp for every row.
+- [ ] RJ state totals reproduce the published values checked on 7 Nov 2026 (2019: 96.58%, 2020: 61.61%, 2021: 59.48%).
+- [ ] Missing, zero and >100% values are counted and listed, not silently dropped.
+- [ ] Tests pass (`pytest`); data card written; no Claude API calls in this milestone.
+- [ ] Commit made only after owner review.
+
+**Out of scope for M3:** dashboard, Claude API, other states, Zambia adapter, DHIS2 adapter.
 
 ## Guardrails
-
-- Never commit API keys (`.env` is git-ignored).
-- Never commit raw datasets (`data/` contents are git-ignored).
-- AI output is advisory and must be clearly labelled as such.
-- Ask before installing software, downloading data, or publishing.
+- No synthetic data presented as observations (synthetic only as labelled test fixtures).
+- Never commit API keys or raw data.
+- AI output is advisory, cites evidence, and states what the data cannot show.
+- Ask before installing software, downloading data, contacting anyone, or publishing.
