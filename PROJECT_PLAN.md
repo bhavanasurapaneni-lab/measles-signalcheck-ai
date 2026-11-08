@@ -47,7 +47,7 @@ Python 3.12 · pandas · Streamlit · Plotly · Claude API (`anthropic`) · pyth
 - [x] **3. Data acquisition, connector & data card** (7 Nov 2026): `BrazilSIPNIConnector`, canonical schema, coverage safeguards, `DATA_CARD.md`, 29/29 tests pass
 - [x] **4. Deterministic signals & evidence packets** (7 Nov 2026): rules R1–R5 + `insufficient_evidence`, configurable thresholds, weighted state benchmark, labelled arithmetic decomposition, schema-validated packets with grounding and language checks; 63/63 tests pass
 - [x] **5. Claude integration & evaluation: OFFLINE COMPLETE, LIVE VALIDATION DEFERRED** (7 Nov 2026). The integration is implemented and passes 106 offline tests, but **it has not been validated with a live API call**. The owner chose not to set up API billing for now.
-- [ ] **6. Streamlit app & security pack:** filters, charts, signal table, "Draft investigation brief", export; `docs/SECURITY_AND_GOVERNANCE.md`
+- [x] **6. Streamlit dashboard** (7 Nov 2026): `app/streamlit_app.py` with 5 tabs, health-region filters, signal summaries, verified observations, labelled offline demonstration briefs, a disabled live-Claude option, and safe handling of missing, altered or empty data; 122 tests pass. *Original scope:* filters, charts, signal table, "Draft investigation brief", export; `docs/SECURITY_AND_GOVERNANCE.md`
 - [ ] **7. Reusable assets & training:** reference design, adapter guide (WHO admin2 / DHIS2 format), prompt and eval templates, workshop/tabletop kit, field notes
 - [ ] **8. Publish to GitHub** *(only with owner approval)*
 

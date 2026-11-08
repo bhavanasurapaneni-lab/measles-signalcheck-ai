@@ -99,20 +99,9 @@ def tampered_packet(packet: dict) -> dict:
 
 # ------------------------------------------------------------------ synthetic drafts
 def good_draft_sao_goncalo() -> BriefDraft:
-    """A compliant draft for the real São Gonçalo packet (O1 doses, O2 state, O3 >100%, O4 coverage)."""
-    return BriefDraft(
-        headline="Check how first-dose measles vaccinations were recorded in São Gonçalo across this period.",
-        claims=[
-            Claim(kind="evidence_supported", text="Recorded first-dose measles vaccine doses fell sharply between the compared years.", observation_ids=["O1"]),
-            Claim(kind="evidence_supported", text="The fall in recorded doses was much larger than the statewide fall.", observation_ids=["O2"]),
-            Claim(kind="evidence_supported", text="Published coverage was above the plausible ceiling in the earlier year and then fell steeply.", observation_ids=["O3", "O4"]),
-            Claim(kind="possible_explanation", text="Some doses may not have been entered or transmitted to the national system in the later year.", observation_ids=["O1"]),
-            Claim(kind="possible_explanation", text="Children living in neighbouring municipalities might have been vaccinated and recorded here, which could inflate coverage.", observation_ids=["O3"]),
-            Claim(kind="verification_action", text="Compare monthly dose entries for both years with the registers kept in vaccination rooms.", observation_ids=["O1"]),
-            Claim(kind="verification_action", text="Check whether any vaccination rooms stopped sending records during the later year.", observation_ids=[]),
-        ],
-        observations_not_discussed=[],
-    )
+    """A compliant hand-written draft for the real São Gonçalo packet (shared with the dashboard demo)."""
+    from signalcheck import demo_briefs
+    return demo_briefs.get("330490", 2019)
 
 
 def mutate(draft: BriefDraft, claim_index: int | None = None, **changes) -> BriefDraft:
