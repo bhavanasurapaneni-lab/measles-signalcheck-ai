@@ -27,9 +27,9 @@ jobs:
       SIGNALCHECK_OFFLINE: "1"   # the brief client can never create a real API client
       PYTHONIOENCODING: "utf-8"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7          # Node.js 24 runtime
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7      # Node.js 24 runtime
         with:
           python-version: "3.12"
           cache: pip
