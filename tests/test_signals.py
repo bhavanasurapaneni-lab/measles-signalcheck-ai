@@ -113,9 +113,17 @@ def test_committed_example_packet_is_reproducible(real):
     c, obs = real
     example = Path(__file__).resolve().parents[1] / "docs" / "examples" / "evidence_packet_330490_2019_2020.json"
     committed = json.loads(example.read_text(encoding="utf-8"))
-    fresh = build_packet(obs, c, "330490", 2019, 2020)
+    fresh = json.loads(json.dumps(build_packet(obs, c, "330490", 2019, 2020)))
     validate_packet(committed, T)
-    assert committed == json.loads(json.dumps(fresh))
+    hashes = lambda p: [f["sha256"] for f in p["source"]["files"]]  # noqa: E731
+    if hashes(committed) != hashes(fresh):
+        pytest.skip("local data snapshot differs from the committed example (e.g. a fresh download); "
+                    "regenerate with scripts/run_signals.py")
+    # Same data: everything except retrieval timestamps must be identical.
+    for p in (committed, fresh):
+        for f in p["source"]["files"]:
+            f.pop("retrieved_at_utc")
+    assert committed == fresh
 
 
 # ====================================================== SYNTHETIC TEST FIXTURES (labelled)

@@ -5,6 +5,15 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 
 ---
 
+## D-030 · Workshop and pilot are labelled simulated or proposed (Accepted, Nov 2026)
+- The workshop materials are marked **SIMULATED** (not delivered to any organisation). Tabletop injects are marked fictional. All figures are real TabNet values.
+- `docs/PILOT_PLAN.md` is a **proposal**: success measures are targets to negotiate, not results. No partnership exists.
+
+## D-029 · Documentation states evidence levels explicitly (Accepted, Nov 2026)
+- Every capability is described as **demonstrated**, **demonstrated offline**, **implemented but not live-validated**, or **not demonstrated**. Security controls are marked **[Implemented]**, **[Implemented – process]** or **[Proposed]**.
+- **Why:** reviewers and partners must be able to tell evidence from intent. No impact metrics, partnerships or live API results are claimed.
+- Reuse is delivered as a specification (`docs/REUSE_GUIDE.md`, prompt template), not new integrations, to avoid building unneeded code.
+
 ## D-028 · Dashboard visual design: fixed light theme, validated reference palette (Accepted, 7 Nov 2026)
 - **Colours:** categorical slots blue `#2a78d6` (the selected area) and orange `#eb6834` (the state). Diverging red/blue shows the sign of a regional change. Gray ink and gridlines throughout, with thin 2 px lines and 8 px markers.
 - **No dual axes:** a municipality and the state are compared on a 2015 = 100 index.

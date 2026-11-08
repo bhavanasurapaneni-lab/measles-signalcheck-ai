@@ -1,133 +1,140 @@
 # Measles SignalCheck AI
 
-A portfolio project that helps **regional and municipal immunization coordinators**
-investigate drops in measles first-dose coverage and tell real declines apart from
-data-quality problems. It uses official public data (Brazil's SI-PNI, with WHO/UNICEF
-estimates for cross-checking), Python, Streamlit and the Claude API.
+**Evidence-grounded investigation support for immunization coordinators: real decline or records problem?**
 
-> **Status:** Milestone 5 **offline complete, live validation deferred**. The Claude API integration
-> for evidence-grounded briefs is implemented, with claim-level validation and 106 offline tests,
-> but it **has not been validated with a live API call**. Milestone 6 adds a local Streamlit dashboard
-> (offline demonstration mode). Example packet: `docs/examples/`.
-> See `PROJECT_PLAN.md`, `DATA_CARD.md`, `DATA_SOURCES.md`, `PROJECT_DECISIONS.md` and
-> `ANTHROPIC_ROLE_ALIGNMENT.md`.
+In 2020, the measles first-dose (MMR1) coverage published for Rio de Janeiro state, Brazil, fell from **96.58% to
+61.61%**. Some municipalities fell much further (São Gonçalo: 121.66% → 35.77%). A regional coordinator has to decide,
+municipality by municipality, whether this reflects fewer children vaccinated, missing or late records, a shifting
+denominator, or implausible data, and **what to check first**. Dashboards show the numbers. They don't separate
+those possibilities, and generic AI summaries can state causes the data cannot support.
 
-## What it does now
-- Fetches three small public, aggregate DATASUS TabNet tables (MMR1 doses, published MMR1 coverage,
-  and SINASC live births for the 92 Rio de Janeiro municipalities) and records where they came from.
-- Loads them through a reusable connector into one table format, keeping **doses**, **denominators**
-  and **published coverage** separate.
-- Refuses invalid coverage calculations and any comparison that crosses the 2023 SI-PNI/RNDS change.
-- Applies deterministic, configurable **signal rules** and builds schema-validated **evidence packets**
-  (Milestone 4).
-- Includes a Claude API integration for evidence-grounded investigation briefs, with claim-level
-  validation. It is tested offline only; **live validation is deferred** (Milestone 5).
-- Provides a local **Streamlit dashboard** for coordinators, with region, municipality and period filters,
-  signal summaries, verified observations and clearly labelled offline demonstration briefs
-  (Milestone 6).
+**Measles SignalCheck AI** turns official public data into **traceable evidence packets** with transparent,
+tested rules. It then lets Claude write a short **investigation brief** under strict constraints: Claude may not
+write a single number, every claim must cite verified evidence, and possible causes may only appear as hedged
+hypotheses to check. Each brief is validated claim by claim before a person sees it.
 
-## How to use the dashboard
-1. Choose a **comparison period** (e.g. 2019 → 2020), a **health region**, and a **municipality** in the sidebar.
-2. **Overview**: state or region trend and the change in recorded doses by health region.
-3. **Signals**: which municipalities crossed a review threshold; filter by signal and download the table.
-4. **Municipality trends**: recorded doses (indexed against the state) and published coverage.
-5. **Investigation brief**: verified observations with evidence IDs; demonstration briefs for
-   São Gonçalo and Niterói (2019 → 2020) are hand-written fixtures, **not Claude output**.
-6. **Data & limitations**: read before drawing conclusions.
+> **What has actually been demonstrated** (details in [docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md))
+> - ✅ Reproducible ingestion of official Brazilian Ministry of Health data (SI-PNI and SINASC via DATASUS TabNet) with SHA-256 provenance
+> - ✅ Deterministic signal rules and schema-validated evidence packets: **644 municipality-year packets validated**
+> - ✅ Claim-level grounding validator: **20/20 expected verdicts** on labelled synthetic drafts (offline)
+> - ✅ Local Streamlit dashboard for non-technical coordinators; **122 automated tests pass**
+> - ⏸️ **Claude API integration implemented but NOT validated with a live API call** (deferred; $0 spent)
+> - ❌ Not demonstrated: use by real health teams, health impact, production reliability, clinical validation
 
-## Project structure
+*Portfolio project by Bhavana Surapaneni, prepared for Anthropic's Applied AI Architect, Beneficial Deployments
+(Global & Public Health) role. Not an official tool of WHO, Anthropic or the Brazilian Ministry of Health.*
 
+---
+
+## Five-minute tour
+1. **Read this page** (2 min): the problem, the approach, what's demonstrated.
+2. **Look at one evidence packet** (1 min): [docs/examples/evidence_packet_330490_2019_2020.json](docs/examples/evidence_packet_330490_2019_2020.json). Every value has an ID (F#, D#), a source file, and a method.
+3. **Skim the architecture** (1 min): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), especially the diagram and "Demonstrated vs not demonstrated".
+4. **See how AI output is checked** (1 min): the adversarial cases table in [docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md#adversarial-and-failure-cases).
+
+## How it works
+```mermaid
+flowchart LR
+    A["DATASUS TabNet<br/>(SI-PNI doses & coverage,<br/>SINASC births)"] --> B["Connector<br/>hash-checked, validated"]
+    B --> C["Signal rules<br/>(configurable thresholds)"]
+    C --> D["Evidence packet<br/>F# facts · D# calcs · S# signals"]
+    D --> E["Dashboard"]
+    D --> F["Observations O#<br/>(Python writes every number)"]
+    F --> G["Claude brief<br/>(narrative only, cites O#)"]
+    G --> H["Claim validator<br/>accept · human review · reject"]
+    H --> E
 ```
-measles-signalcheck-ai/
-├── app/streamlit_app.py        # Dashboard (offline demonstration mode)
-├── scripts/                    # fetch_tabnet.py, fetch_health_regions.py, run_signals.py, check_api_key.py
-├── src/signalcheck/
-│   ├── schema.py  tabnet.py  coverage.py   # canonical schema, TabNet parser, guarded calculations
-│   ├── connectors/             # base.py (contract) + brazil_sipni.py
-│   ├── signals.py  evidence.py # deterministic rules + validated evidence packets
-│   ├── briefing.py  brief_validator.py  brief_client.py  demo_briefs.py   # briefs (offline-tested)
-│   └── dashboard_data.py       # dashboard aggregation (weighted)
-├── config/  schemas/  prompts/ # thresholds, packet JSON Schema, versioned prompt
-├── evals/                      # evaluation cases, fake client, offline and live harnesses
-├── tests/                      # pytest suite (122 tests)
-├── data/raw/                   # Raw downloads + manifests (NOT committed to Git)
-├── docs/                       # examples, security & governance
-├── DATA_CARD.md  DATA_SOURCES.md  PROJECT_PLAN.md  PROJECT_DECISIONS.md
-├── ANTHROPIC_ROLE_ALIGNMENT.md
-├── requirements.txt  .env.example  .gitignore
-```
+- **Doses, denominators and published coverage are kept separate.** The official denominator is unpublished, so the tool never presents a recalculated percentage as official.
+- **Signals are review triggers, not conclusions.** They cover a recorded-dose change of 30% or more, a coverage swing of 30 points or more, coverage above 100%, a 25-point or larger difference from the weighted state benchmark, and small numbers. Missing data yields `insufficient_evidence`, never zero.
+- **Comparisons stop at the 2023 SI-PNI/RNDS reporting-system transition.** Analyses across it are refused.
+- **Claude is constrained by design:** one structured-output call (`messages.parse`), a cached system prompt, explicit effort setting, no refusal fallback (for reproducible evaluation), and a validator that rejects numbers, wrong places, wrong indicators, wrong directions, causal claims and prompt-injection echoes.
 
-## Install on Windows (step by step)
+## Demonstration walkthrough
+1. Install and launch (below). The dashboard opens in **offline demonstration mode**.
+2. Sidebar: period **2019 → 2020**, region **Metropolitana II**, municipality **São Gonçalo**.
+3. **Overview**: statewide recorded doses fell 36.4%; Metropolitana II fell 64.7%.
+4. **Signals**: 30 of 92 municipalities crossed the recorded-dose threshold; filter and export the list.
+5. **Municipality trends**: São Gonçalo's doses (indexed to 2015) against the state; published coverage above 100% in 2019.
+6. **Investigation brief**: four verified observations with evidence IDs, what the data cannot show, and a **labelled demonstration brief** (hand-written fixture, *not* Claude output) that passed the validator.
+7. **Data & limitations**: sources, the 2023 break, and permitted and prohibited interpretations.
 
-You need **Python 3.11 or later** (python.org; tick "Add python.exe to PATH" during install) and the
-project folder on your computer. **No API key is needed**: the dashboard and all tests run offline.
+**Screenshots:** see [docs/screenshots/README.md](docs/screenshots/README.md) for the four views to capture.
+They aren't committed yet.
+
+## Install and run on Windows
+You need **Python 3.11+** (python.org; tick "Add python.exe to PATH"). **No API key is needed.**
 
 ```powershell
-# 1. Open PowerShell in the project folder (e.g. VS Code: File > Open Folder, then Terminal > New Terminal)
-
-# 2. Create the virtual environment and install dependencies (once)
+# from the project folder
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 
-# 3. Download the public data sample (about 23 KB) and the health-region mapping (once)
+# download the public data (raw files are not in Git; ~23 KB sample + 2.1 MB TabNet form page for regions)
 .\.venv\Scripts\python.exe scripts\fetch_tabnet.py
 .\.venv\Scripts\python.exe scripts\fetch_health_regions.py
 
-# 4. Start the dashboard - your browser opens http://localhost:8501
+# launch the dashboard, then open http://localhost:8501 in your browser (stop with Ctrl+C)
 .\.venv\Scripts\python.exe -m streamlit run app\streamlit_app.py
+
+# run the tests and the offline evaluation
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m evals.run_offline
+```
+- Raw files are saved **unchanged**, with a manifest (URLs, query selections, retrieval time, SHA-256). The connector refuses altered files.
+- The reference snapshot was retrieved on 7 Nov 2026. SINASC can be revised, so a fresh download may change hashes. Reference-value tests then show exactly what changed.
+- Tests that need raw data are skipped (not failed) if `data/raw/` is empty.
+- **Optional live Claude briefs** need your own key in a git-ignored `.env` (copy `.env.example`) **and** `SIGNALCHECK_ENABLE_LIVE=1`. The live evaluation harness (`evals/run_live.py`) refuses to run without an approved spending cap.
+
+## Evaluation results (summary)
+| Area | Result |
+|---|---|
+| Automated tests | 122 passed (connector, signals, packets, briefs, dashboard, failure modes) |
+| Agreement with published figures | State coverage within 0.3 pts of TabNet totals; national dose filter reproduces the WHO-reported target within 0.1% |
+| Evidence packets | 644/644 statewide packets pass schema, reference, number-grounding and language checks |
+| Brief validator (offline) | 20/20 expected verdicts across 18 failure modes: wrong number, place, year, indicator or direction; causal or uptake claims; injection; uncovered evidence |
+| Live Claude evaluation | **Deferred: not run, no results claimed** |
+
+## Responsible AI and limitations
+- **Recorded doses are records, not confirmed vaccinations.** The data shows *what* changed, never *why*.
+- **Human oversight:** every brief is labelled accepted, needs human review, or rejected, and states that validation doesn't prove any public-health conclusion. Rejected briefs are never automatically repaired.
+- **Privacy:** only public, aggregate municipality-year data. Only validated packets would be sent to the API. Keys stay in a git-ignored `.env` and are never logged.
+- **Limits:** one state, one indicator, 2015–2022. Rule-based validation can't guarantee semantic faithfulness. There's no ground truth for real data-quality problems. Not tested with real coordinators. Light theme only.
+- Details: [docs/SECURITY_AND_GOVERNANCE.md](docs/SECURITY_AND_GOVERNANCE.md) · [DATA_CARD.md](DATA_CARD.md)
+
+## Documentation
+| Document | Purpose |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, data flow, decisions, deployment options |
+| [docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md) | Tests, grounding checks, adversarial cases, unresolved risks |
+| [docs/SECURITY_AND_GOVERNANCE.md](docs/SECURITY_AND_GOVERNANCE.md) | Data classification, injection, keys, oversight (implemented vs proposed) |
+| [docs/REUSE_GUIDE.md](docs/REUSE_GUIDE.md) | Adapter spec, packet schema reference, prompt template, evaluation method |
+| [docs/workshop/](docs/workshop/FACILITATOR_GUIDE.md) | Simulated 90-minute tabletop exercise (facilitator guide + participant sheet) |
+| [docs/PILOT_PLAN.md](docs/PILOT_PLAN.md) | Proposed 12-week pilot with a go/no-go framework (no partnership exists) |
+| [DATA_CARD.md](DATA_CARD.md) · [DATA_SOURCES.md](DATA_SOURCES.md) | Dataset documentation and source research |
+| [PROJECT_DECISIONS.md](PROJECT_DECISIONS.md) · [PROJECT_PLAN.md](PROJECT_PLAN.md) | Decision log (D-001…) and milestones |
+| [ANTHROPIC_ROLE_ALIGNMENT.md](ANTHROPIC_ROLE_ALIGNMENT.md) | Mapping to the role's responsibilities |
+
+## Repository map
+```
+app/streamlit_app.py            dashboard (offline demonstration mode)
+src/signalcheck/                connectors/, schema, tabnet, coverage, signals, evidence,
+                                briefing, brief_validator, brief_client, demo_briefs, dashboard_data
+scripts/                        fetch_tabnet, fetch_health_regions, run_signals, check_api_key
+config/ schemas/ prompts/       thresholds, packet JSON Schema, versioned prompt + template
+evals/                          cases, fake client, offline and (gated) live harnesses
+tests/                          122 tests
+docs/                           architecture, evaluation, security, reuse, workshop, pilot, examples
 ```
 
-**Optional (not required):** live Claude briefs need an Anthropic API key in a git-ignored `.env`
-(copy `.env.example`). Live validation is currently deferred (PROJECT_DECISIONS.md D-025), and the
-dashboard's live option stays disabled unless `SIGNALCHECK_ENABLE_LIVE=1` is also set.
+## Resume-ready project bullets
+*Accurate as of Nov 2026; each is supported by code or documents in this repository.*
+- Built an evidence-grounded immunization data-quality tool on official Brazilian Ministry of Health data (SI-PNI and SINASC, 92 municipalities, 2015–2022), with reproducible, hash-verified ingestion and a reusable connector interface.
+- Designed deterministic signal rules and schema-validated evidence packets (644 validated), separating recorded doses, unpublished denominators and published coverage, and refusing comparisons across a 2023 national reporting-system change.
+- Architected a Claude API integration (structured outputs, prompt caching, explicit failure handling) in which code generates every number and the model writes cited narrative only. In offline evaluation, a claim-level validator correctly rejected or sent to human review all 18 known-bad drafts. Live model evaluation was scoped and cost-gated but deferred.
+- Delivered a Streamlit dashboard for non-technical coordinators with 122 automated tests, plus a security and governance pack, a reuse guide, a simulated tabletop workshop and a proposed pilot plan with go/no-go criteria.
 
-## Get the data (raw data is not in this repository)
-
-Raw files are excluded from Git. Recreate them from the official public source:
-
-```powershell
-.\.venv\Scripts\python.exe scripts\fetch_tabnet.py
-```
-
-This sends three documented queries to DATASUS TabNet (http://tabnet.datasus.gov.br/) and saves
-TabNet's CSV exports **unchanged** to `data/raw/brazil_sipni/`, with a `manifest.json` recording
-the URLs, query selections, retrieval time and SHA-256 hashes. The download is about 23 KB and
-needs no login.
-
-- The snapshot described in `DATA_CARD.md` was retrieved on 7 Nov 2026. TabNet's immunization
-  tables were last updated in May 2023, but SINASC birth data can be revised, so a new download
-  may have different hashes. In that case the reference-value tests (for example São Gonçalo)
-  show exactly what changed.
-- The connector checks every file against the manifest and refuses to load altered files.
-
-## Open the dashboard (Windows)
-
-```powershell
-.\.venv\Scripts\python.exe scripts\fetch_health_regions.py   # once, for health-region filters
-.\.venv\Scripts\python.exe -m streamlit run app\streamlit_app.py
-```
-
-Then open http://localhost:8501 in your browser. Press `Ctrl+C` in the terminal to stop it. The dashboard
-runs in **offline demonstration mode**: no Claude API calls are made, and the sample briefs are hand-written
-fixtures that are clearly labelled as such.
-
-## Run the tests
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -v
-```
-
-Tests that need the raw data are skipped (not failed) if `data/raw/brazil_sipni/` is empty.
-
-## Data source
-
-Ministério da Saúde (Brazil), DATASUS TabNet: SI-PNI *Imunizações – Cobertura* and
-*Doses Aplicadas* (1994–2022), and SINASC *Nascidos Vivos – Rio de Janeiro*. WHO/UNICEF
-national estimates are used for cross-checking. Details, limitations and permitted
-interpretations are in `DATA_CARD.md`.
-
-## Disclaimer
-
-This is a learning/portfolio project. It is not an official WHO or Brazilian Ministry of
-Health tool, and its outputs should not replace official programme review. Changes in
-recorded doses are not proof of changes in vaccination uptake.
+## Data source and disclaimer
+Ministério da Saúde (Brazil), DATASUS TabNet: SI-PNI *Imunizações – Cobertura* and *Doses Aplicadas* (1994–2022);
+SINASC *Nascidos Vivos – Rio de Janeiro*; CIR health-region mapping. Accessed 7 Nov 2026. This is a learning and
+portfolio project. Its outputs must not replace official programme review, and changes in recorded doses are not
+proof of changes in vaccination uptake.
