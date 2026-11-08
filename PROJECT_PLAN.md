@@ -46,12 +46,19 @@ Python 3.12 · pandas · Streamlit · Plotly · Claude API (`anthropic`) · pyth
 - [x] **2. Data discovery & validation:** `DATA_SOURCES.md`, `PROJECT_DECISIONS.md`, `ANTHROPIC_ROLE_ALIGNMENT.md`
 - [x] **3. Data acquisition, connector & data card** (7 Nov 2026): `BrazilSIPNIConnector`, canonical schema, coverage safeguards, `DATA_CARD.md`, 29/29 tests pass
 - [x] **4. Deterministic signals & evidence packets** (7 Nov 2026): rules R1–R5 + `insufficient_evidence`, configurable thresholds, weighted state benchmark, labelled arithmetic decomposition, schema-validated packets with grounding and language checks; 63/63 tests pass
-- [ ] **5. Claude integration & evaluation:** evidence packet, versioned prompt, grounding validator, evaluation set and results report
+- [x] **5. Claude integration & evaluation: OFFLINE COMPLETE, LIVE VALIDATION DEFERRED** (7 Nov 2026). The integration is implemented and passes 106 offline tests, but **it has not been validated with a live API call**. The owner chose not to set up API billing for now.
 - [ ] **6. Streamlit app & security pack:** filters, charts, signal table, "Draft investigation brief", export; `docs/SECURITY_AND_GOVERNANCE.md`
 - [ ] **7. Reusable assets & training:** reference design, adapter guide (WHO admin2 / DHIS2 format), prompt and eval templates, workshop/tabletop kit, field notes
 - [ ] **8. Publish to GitHub** *(only with owner approval)*
 
-## Milestone 5: proposed scope (awaiting approval)
+## Milestone 5: status (7 Nov 2026): OFFLINE COMPLETE, LIVE VALIDATION DEFERRED
+**The Claude API integration is implemented but has NOT been validated with a live API call.** No real Claude output has been evaluated, and $0 has been spent. Everything below was measured offline with a fake client and labelled synthetic drafts. The live harness (`evals/run_live.py`, with a spend ledger and per-call worst-case gate) is kept for if and when the owner enables live testing.
+- Built: `briefing.py` (observations, BriefDraft contract, rendering), `brief_validator.py` (claim-level grounding), `brief_client.py` (single call, explicit failure handling), `prompts/brief_v1.md`, `evals/` (cases, fake client, offline and live harnesses), `docs/SECURITY_AND_GOVERNANCE.md`.
+- **Offline results:** 106/106 tests pass. 20/20 labelled draft cases get the expected verdict (18/18 known-bad drafts rejected or sent to review, 2/2 known-good accepted). 11 simulated API outcomes each map to an explicit status.
+- **Live evaluation (deferred):** 14 packets (12 real, 2 synthetic). Expected about $0.84, maximum $2.41. It would run only if the owner explicitly enables live testing and configures a key. Until then, all development uses offline tests.
+- **Unknown until a live run:** real acceptance, rejection and refusal rates; how often Claude complies with the no-digits rule; prompt-cache hits; latency; actual cost.
+
+## Milestone 5: original proposed scope
 **Goal:** Claude turns **one validated evidence packet** into a short investigation brief, and an evaluation harness measures whether the brief is grounded, cautious and useful. No UI and no deployment.
 
 1. **Prompt and output contract:** a versioned system prompt (`prompts/brief_v1.md`). The packet is passed as data inside clearly delimited tags and treated as untrusted. Output is structured JSON: summary, observations (each citing F/D/S IDs), what the data cannot show, suggested checks, and limitations. Claude may only restate packet facts and propose *checks*, never causes.

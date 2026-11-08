@@ -108,7 +108,8 @@ Classifications: `recorded_dose_change`, `reported_coverage_change`, `implausibl
 
 ## 11. Privacy and AI use
 - The data is aggregate (municipality × year counts and percentages) and contains no personal identifiers.
-- In later milestones, **only these aggregate values** may be sent to the Claude API. No identifiable health records are used at any stage.
+- **Only validated, aggregate evidence packets** (reduced to observation statements, limitations and prohibited interpretations) may be sent to the Claude API. No identifiable health records are used at any stage. See `docs/SECURITY_AND_GOVERNANCE.md`.
+- In investigation briefs, every number comes from Python-generated observations. Claude writes narrative only, and each brief is validated and labelled accepted, needs human review, or rejected. **Acceptance does not prove any public-health conclusion.**
 
 ## 12. Citation
 Ministério da Saúde, Brasil. DATASUS TabNet: *Imunizações – Cobertura* and *Imunizações – Doses Aplicadas* (SI-PNI/CGPNI/DEIDT/SVS/MS, 1994–2022), and *Nascidos Vivos – Rio de Janeiro* (SINASC/CGIAE/SVSA). Accessed 7 Nov 2026 via http://tabnet.datasus.gov.br/.

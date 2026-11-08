@@ -5,6 +5,35 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 
 ---
 
+## D-025 · Live validation deferred; Milestone 5 closed as offline complete (Accepted, 7 Nov 2026)
+- **Decision (owner):** skip the paid live evaluation for now and don't set up API billing. Milestone 5 is **OFFLINE COMPLETE, LIVE VALIDATION DEFERRED**. No API key will be requested unless the owner explicitly enables live testing.
+- **What is and isn't proven:** the request contract, validator, failure handling, spending gates and offline mode are implemented and tested offline (106 tests). **Claude's real behaviour on these packets has not been observed**, so no live acceptance rate or cost is claimed anywhere.
+- **Kept unchanged:** `brief_client.py`, `evals/run_live.py` (spend ledger, worst-case gate, `--only`/`--skip`), `scripts/check_api_key.py`, `SIGNALCHECK_OFFLINE` in tests, and `docs/SECURITY_AND_GOVERNANCE.md`.
+- **Effect on Milestone 6:** the dashboard shows deterministic evidence and clearly labelled offline demonstration briefs. The live-Claude option is visibly disabled.
+
+## D-024 · No live API calls until offline tests pass and spend is approved (Accepted, 7 Nov 2026)
+- `evals/run_live.py` refuses to run without `--approve-max-usd` at or above the computed maximum. Tests force offline mode (`SIGNALCHECK_OFFLINE=1`).
+- **Estimate for the 14-case live evaluation:** expected about **$0.84**, maximum **$2.41**.
+
+## D-023 · Three claim kinds; explanations are never findings (Accepted, 7 Nov 2026)
+- `evidence_supported`: must cite observations; indicator, direction and magnitude words are checked; interpretive verbs go to human review.
+- `possible_explanation`: must cite an observation, must be hedged, and must not use certainty or causal-assertion words. It's rendered under "Unverified possibilities (not findings)".
+- `verification_action`: neutral steps that may not assert a cause. At least one is required.
+
+## D-022 · Python writes every number; Claude writes the narrative (Accepted, 7 Nov 2026)
+- **Decision:** observations (O#) are generated in Python from packet signals and are the only numeric statements in a brief. Claude's text may contain **no digits, spelled-out numbers or multipliers**, and refers to observations by ID.
+- **Why:** checking that "a number appears somewhere in the packet" can't catch a correct number attached to the wrong place, year or indicator. Removing numbers from model text makes number errors impossible to accept, and the remaining claim checks (place, indicator, direction, magnitude, citation coverage) can be enforced deterministically.
+- **Limit:** full semantic faithfulness can't be guaranteed by rules. Interpretive language goes to human review, and acceptance never means a conclusion is proven.
+
+## D-021 · Structured output via `messages.parse` with a cached system prompt (Accepted, 7 Nov 2026)
+- **Checked against the installed SDK** (`anthropic` 2.6.0): `messages.parse(output_format=BriefDraft)` merges the JSON schema into `output_config`, so `output_config={"effort": "medium"}` can be sent alongside it.
+- `parse()` has no top-level `cache_control`, so the system prompt is sent as a text block with `cache_control: {type: "ephemeral"}`. The prompt is 3,070 characters, roughly 700–800 tokens, which is above the 512-token minimum for this model. The live run's usage figures will confirm whether it is actually cached.
+- Cache hits are checked through `usage.cache_read_input_tokens` during the live run.
+
+## D-020 · Model configuration (Accepted, 7 Nov 2026)
+- `claude-opus-5-5` with effort `medium`, set explicitly. `CLAUDE_MODEL`, `CLAUDE_EFFORT` and `CLAUDE_MAX_TOKENS` can be changed in `.env`. The `thinking` parameter isn't sent, because thinking is always on for this model.
+- **Refusal fallback disabled** (owner decision, for reproducible evaluation). Refusals, truncation, rate limits, server and connection errors, authentication errors and an unknown model each map to an explicit status.
+
 ## D-019 · Evidence packet schema validated without a new dependency (Accepted, 7 Nov 2026)
 - **Decision:** the packet format is documented as standard JSON Schema (`schemas/evidence_packet.schema.json`). It is enforced by `jsonschema_lite.py`, a roughly 60-line validator for the subset of keywords used, which **raises on any keyword it doesn't support** so it can't drift from the schema.
 - **Alternative:** add the `jsonschema` package. That's reasonable later, but it needs an install and approval.

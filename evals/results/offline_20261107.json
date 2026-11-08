@@ -1,0 +1,330 @@
+{
+  "generated_at_utc": "2026-11-07T23:52:38+00:00",
+  "note": "Offline evaluation of the validator and failure handling with SYNTHETIC drafts. It measures the checks, not Claude, and proves no public-health conclusion.",
+  "summary": {
+    "draft_cases": 20,
+    "verdict_matches_expected": 20,
+    "known_bad_drafts_rejected_or_reviewed": 18,
+    "known_bad_drafts": 18,
+    "known_good_drafts_accepted": 2,
+    "known_good_drafts": 2
+  },
+  "draft_results": [
+    {
+      "case": "SYNTHETIC_good_draft",
+      "failure_mode": "none",
+      "expected": "accepted",
+      "verdict": "accepted",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": []
+    },
+    {
+      "case": "SYNTHETIC_good_draft_with_explicit_skip",
+      "failure_mode": "none",
+      "expected": "accepted",
+      "verdict": "accepted",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": []
+    },
+    {
+      "case": "SYNTHETIC_correct_id_wrong_number",
+      "failure_mode": "correct ID, incorrect number",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): contains digits (numbers must come from verified observations)"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_spelled_number",
+      "failure_mode": "number written in words",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): contains a spelled-out number or multiplier"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_multiplier",
+      "failure_mode": "unverifiable magnitude",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 2 (evidence_supported): contains a spelled-out number or multiplier"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_wrong_municipality",
+      "failure_mode": "correct observation, wrong municipality",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): names another place (niteroi)"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_wrong_year",
+      "failure_mode": "correct observation, wrong years",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): contains digits (numbers must come from verified observations)"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_wrong_direction",
+      "failure_mode": "direction contradicts evidence",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): says increase but cited observations show a decrease"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_minimised_change",
+      "failure_mode": "magnitude contradicts evidence",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): minimises a change that crossed a review threshold"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_wrong_indicator",
+      "failure_mode": "indicator not supported by cited observation",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 0.8,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): mentions coverage but cites no coverage observation"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_dangling_citation",
+      "failure_mode": "citation to missing evidence",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 0.8,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): unknown observation IDs ['O9']",
+        "claim 1 (evidence_supported): mentions doses but cites no doses observation",
+        "observations neither discussed nor skipped: ['O1']"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_uncovered_observation",
+      "failure_mode": "evidence silently omitted",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": [
+        "observations neither discussed nor skipped: ['O2']"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_no_verification_action",
+      "failure_mode": "no actionable check",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": [
+        "no verification action proposed"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_causal_in_evidence",
+      "failure_mode": "unsupported causal claim",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): causal or uptake wording in an evidence-supported claim"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_uptake_claim",
+      "failure_mode": "uptake claim from records",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 0.6666666666666666,
+      "reasons": [
+        "claim 1 (evidence_supported): claims a change in children vaccinated",
+        "claim 1 (evidence_supported): causal or uptake wording in an evidence-supported claim"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_unhedged_explanation",
+      "failure_mode": "hypothesis presented as finding",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": [
+        "claim 4 (possible_explanation): possible explanation is not hedged (may/might/could)",
+        "claim 4 (possible_explanation): presents a possible explanation as established"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_explanation_asserted",
+      "failure_mode": "hedged word plus certainty",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": [
+        "claim 4 (possible_explanation): presents a possible explanation as established"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_action_asserts_cause",
+      "failure_mode": "action states a cause",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": [
+        "claim 6 (verification_action): verification action asserts a cause"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_injection_echo",
+      "failure_mode": "prompt-injection echo",
+      "expected": "rejected",
+      "verdict": "rejected",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": [
+        "headline: instruction-like text",
+        "headline: causal or uptake wording"
+      ]
+    },
+    {
+      "case": "SYNTHETIC_interpretive_wording",
+      "failure_mode": "interpretation not machine-verifiable",
+      "expected": "needs_human_review",
+      "verdict": "needs_human_review",
+      "correct": true,
+      "citation_accuracy": 1.0,
+      "grounding_accuracy": 1.0,
+      "reasons": [
+        "claim 1 (evidence_supported): interpretive wording cannot be verified automatically"
+      ]
+    }
+  ],
+  "simulated_api_outcomes": [
+    {
+      "simulated": "rate_limit",
+      "status": "api_error",
+      "detail": "RateLimitError after SDK retries; try again later"
+    },
+    {
+      "simulated": "server_error",
+      "status": "api_error",
+      "detail": "APIStatusError 500 after SDK retries"
+    },
+    {
+      "simulated": "connection",
+      "status": "api_error",
+      "detail": "APIConnectionError: network problem"
+    },
+    {
+      "simulated": "timeout",
+      "status": "api_error",
+      "detail": "APITimeoutError: network problem"
+    },
+    {
+      "simulated": "auth",
+      "status": "auth_error",
+      "detail": "AuthenticationError: check the API key and its permissions"
+    },
+    {
+      "simulated": "model_not_found",
+      "status": "config_error",
+      "detail": "Model or endpoint not found: claude-opus-5-5"
+    },
+    {
+      "simulated": "refusal",
+      "status": "refused",
+      "detail": "model declined (category=bio); no fallback by design"
+    },
+    {
+      "simulated": "truncated",
+      "status": "truncated",
+      "detail": "output hit max_tokens; brief discarded"
+    },
+    {
+      "simulated": "no_structured_output",
+      "status": "rejected",
+      "detail": "no valid structured output returned"
+    },
+    {
+      "simulated": "good_response",
+      "status": "accepted",
+      "detail": ""
+    },
+    {
+      "simulated": "contradictory_packet",
+      "status": "invalid_packet",
+      "detail": "ungrounded numbers: ['S1: -12.0']",
+      "api_called": false
+    },
+    {
+      "simulated": "preflight:SYNTHETIC_injection_in_unit_name",
+      "status": "would_send",
+      "observations": [
+        "recorded_dose_change",
+        "reported_coverage_change"
+      ]
+    },
+    {
+      "simulated": "preflight:SYNTHETIC_missing_doses",
+      "status": "would_send",
+      "observations": [
+        "insufficient_evidence",
+        "insufficient_evidence",
+        "reported_coverage_change"
+      ]
+    }
+  ]
+}
