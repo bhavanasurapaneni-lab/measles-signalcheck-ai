@@ -1,5 +1,9 @@
 # Measles SignalCheck AI
 
+[![offline-tests](https://github.com/bhavanasurapaneni-lab/measles-signalcheck-ai/actions/workflows/tests.yml/badge.svg)](https://github.com/bhavanasurapaneni-lab/measles-signalcheck-ai/actions/workflows/tests.yml)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Live Claude evaluation: deferred](https://img.shields.io/badge/live%20Claude%20evaluation-deferred-lightgrey)
+
 **Evidence-grounded investigation support for immunization coordinators: real decline or records problem?**
 
 In 2020, the measles first-dose (MMR1) coverage published for Rio de Janeiro state, Brazil, fell from **96.58% to
@@ -17,7 +21,7 @@ hypotheses to check. Each brief is validated claim by claim before a person sees
 > - ✅ Reproducible ingestion of official Brazilian Ministry of Health data (SI-PNI and SINASC via DATASUS TabNet) with SHA-256 provenance
 > - ✅ Deterministic signal rules and schema-validated evidence packets: **644 municipality-year packets validated**
 > - ✅ Claim-level grounding validator: **20/20 expected verdicts** on labelled synthetic drafts (offline)
-> - ✅ Local Streamlit dashboard for non-technical coordinators; **123 automated tests pass**
+> - ✅ Local Streamlit dashboard for non-technical coordinators; **133 automated tests pass**
 > - ⏸️ **Claude API integration implemented but NOT validated with a live API call** (deferred; $0 spent)
 > - ❌ Not demonstrated: use by real health teams, health impact, production reliability, clinical validation
 
@@ -69,29 +73,45 @@ A timed five-minute script with what to say at each step is in [docs/DEMO_WALKTH
 6. **Investigation brief**: four verified observations with evidence IDs, what the data cannot show, and a **labelled demonstration brief** (hand-written fixture, *not* Claude output) that passed the validator.
 7. **Data & limitations**: sources, the 2023 break, and permitted and prohibited interpretations.
 
-**Screenshots:** see [docs/screenshots/README.md](docs/screenshots/README.md) for the four views to capture.
-They aren't committed yet.
+### Screenshots (real captures of the running app, offline demonstration mode)
 
-## Install and run on Windows
-You need **Python 3.11+** (python.org; tick "Add python.exe to PATH"). **No API key is needed.**
+**Overview: statewide and regional change in recorded MMR1 doses, 2019 → 2020**
+![Overview tab: KPI tiles, statewide recorded-dose trend and change by health region](docs/screenshots/01_overview.png)
 
+**São Gonçalo trends: recorded doses indexed to 2015 vs the state; published coverage above 100% in 2019**
+![Municipality trends tab for São Gonçalo](docs/screenshots/03_trends.png)
+
+**Investigation brief: verified observations with evidence IDs and a clearly labelled offline demonstration brief (not Claude output)**
+![Investigation brief tab with the offline demonstration banner](docs/screenshots/04_brief.png)
+
+The Signals view and capture details are in [docs/screenshots/](docs/screenshots/README.md).
+
+## Install and run
+You need **Python 3.11+** (3.12 is tested). **No API key is needed**, and nothing in setup calls a paid service.
+
+**Windows (PowerShell)**
 ```powershell
-# from the project folder
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-
-# download the public data (raw files are not in Git; ~23 KB sample + 2.1 MB TabNet form page for regions)
-.\.venv\Scripts\python.exe scripts\fetch_tabnet.py
-.\.venv\Scripts\python.exe scripts\fetch_health_regions.py
-
-# launch the dashboard, then open http://localhost:8501 in your browser (stop with Ctrl+C)
-.\.venv\Scripts\python.exe -m streamlit run app\streamlit_app.py
-
-# run the tests and the offline evaluation
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m evals.run_offline
+.\.venv\Scripts\python.exe scripts\fetch_tabnet.py            # public DATASUS data (~23 KB)
+.\.venv\Scripts\python.exe scripts\fetch_health_regions.py    # health-region list (2.1 MB form page)
+.\.venv\Scripts\python.exe -m streamlit run app\streamlit_app.py --server.address localhost
+.\.venv\Scripts\python.exe -m pytest -q                       # 133 tests
+.\.venv\Scripts\python.exe -m evals.run_offline               # validator evaluation, offline
 ```
-- Raw files are saved **unchanged**, with a manifest (URLs, query selections, retrieval time, SHA-256). The connector refuses altered files.
+
+**macOS / Linux**
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python scripts/fetch_tabnet.py && python scripts/fetch_health_regions.py
+streamlit run app/streamlit_app.py --server.address localhost
+python -m pytest -q && python -m evals.run_offline
+```
+Open http://localhost:8501 (stop with Ctrl+C). If you skip the fetch scripts, the dashboard offers a
+**"Download the public data from DATASUS TabNet"** button instead. Deep links work, e.g.
+`/?period=2019&unit=330490&tab=Investigation+brief`.
+- Raw files are saved **unchanged**, with a manifest (URLs, query selections, retrieval time, SHA-256). The connector refuses altered files. The fetch scripts contact only `tabnet.datasus.gov.br`, reject non-table responses, and won't replace an existing snapshot unless you pass `--force`.
 - The reference snapshot was retrieved on 7 Nov 2026. SINASC can be revised, so a fresh download may change hashes. Reference-value tests then show exactly what changed.
 - Tests that need raw data are skipped (not failed) if `data/raw/` is empty.
 - **Optional live Claude briefs** need your own key in a git-ignored `.env` (copy `.env.example`) **and** `SIGNALCHECK_ENABLE_LIVE=1`. The live evaluation harness (`evals/run_live.py`) refuses to run without an approved spending cap.
@@ -99,7 +119,8 @@ python -m venv .venv
 ## Evaluation results (summary)
 | Area | Result |
 |---|---|
-| Automated tests | 123 passed (connector, signals, packets, briefs, dashboard, failure modes); a fresh clone with no data passes 22 and skips 101 data-dependent tests |
+| Automated tests (local, with data) | 133 passed (connector, signals, packets, briefs, dashboard, failure modes) |
+| Continuous integration ([workflow](.github/workflows/tests.yml)) | Offline, no key, Ubuntu + Windows, Python 3.12. The data isn't in the repo, so CI runs the 30 data-independent tests and reports 103 as skipped, with reasons |
 | Agreement with published figures | State coverage within 0.3 pts of TabNet totals; national dose filter reproduces the WHO-reported target within 0.1% |
 | Evidence packets | 644/644 statewide packets pass schema, reference, number-grounding and language checks |
 | Brief validator (offline) | 20/20 expected verdicts across 18 failure modes: wrong number, place, year, indicator or direction; causal or uptake claims; injection; uncovered evidence |
@@ -109,7 +130,7 @@ python -m venv .venv
 - **Recorded doses are records, not confirmed vaccinations.** The data shows *what* changed, never *why*.
 - **Human oversight:** every brief is labelled accepted, needs human review, or rejected, and states that validation doesn't prove any public-health conclusion. Rejected briefs are never automatically repaired.
 - **Privacy:** only public, aggregate municipality-year data. Only validated packets would be sent to the API. Keys stay in a git-ignored `.env` and are never logged.
-- **Limits:** one state, one indicator, 2015–2022. Rule-based validation can't guarantee semantic faithfulness. There's no ground truth for real data-quality problems. Not tested with real coordinators. Light theme only.
+- **Limits:** one state, one indicator, 2015–2022. Rule-based validation can't guarantee semantic faithfulness. There's no ground truth for real data-quality problems. Not tested with real coordinators. Light theme only. No hosted demo yet (plan prepared).
 - Details: [docs/SECURITY_AND_GOVERNANCE.md](docs/SECURITY_AND_GOVERNANCE.md) · [DATA_CARD.md](DATA_CARD.md)
 
 ## Documentation
@@ -121,6 +142,9 @@ python -m venv .venv
 | [docs/REUSE_GUIDE.md](docs/REUSE_GUIDE.md) | Adapter spec, packet schema reference, prompt template, evaluation method |
 | [docs/workshop/](docs/workshop/FACILITATOR_GUIDE.md) | Simulated 90-minute tabletop exercise (facilitator guide + participant sheet) |
 | [docs/PILOT_PLAN.md](docs/PILOT_PLAN.md) | Proposed 12-week pilot with a go/no-go framework (no partnership exists) |
+| [docs/DEMO_WALKTHROUGH.md](docs/DEMO_WALKTHROUGH.md) | Timed five-minute demo script (São Gonçalo 2019 → 2020) |
+| [docs/DEPLOYMENT_STREAMLIT_CLOUD.md](docs/DEPLOYMENT_STREAMLIT_CLOUD.md) | Free hosted-demo plan (prepared, **not deployed**) |
+| [docs/RESUME_PROJECT_SUMMARY.md](docs/RESUME_PROJECT_SUMMARY.md) | Resume entry, verified accomplishments, interview talking points |
 | [DATA_CARD.md](DATA_CARD.md) · [DATA_SOURCES.md](DATA_SOURCES.md) | Dataset documentation and source research |
 | [PROJECT_DECISIONS.md](PROJECT_DECISIONS.md) · [PROJECT_PLAN.md](PROJECT_PLAN.md) | Decision log (D-001…) and milestones |
 | [ANTHROPIC_ROLE_ALIGNMENT.md](ANTHROPIC_ROLE_ALIGNMENT.md) | Mapping to the role's responsibilities |
@@ -133,7 +157,7 @@ src/signalcheck/                connectors/, schema, tabnet, coverage, signals, 
 scripts/                        fetch_tabnet, fetch_health_regions, run_signals, check_api_key
 config/ schemas/ prompts/       thresholds, packet JSON Schema, versioned prompt + template
 evals/                          cases, fake client, offline and (gated) live harnesses
-tests/                          123 tests
+tests/                          133 tests (.github/workflows/tests.yml runs them offline in CI)
 docs/                           architecture, evaluation, security, reuse, workshop, pilot, examples
 ```
 
@@ -142,7 +166,7 @@ docs/                           architecture, evaluation, security, reuse, works
 - Built an evidence-grounded immunization data-quality tool on official Brazilian Ministry of Health data (SI-PNI and SINASC, 92 municipalities, 2015–2022), with reproducible, hash-verified ingestion and a reusable connector interface.
 - Designed deterministic signal rules and schema-validated evidence packets (644 validated), separating recorded doses, unpublished denominators and published coverage, and refusing comparisons across a 2023 national reporting-system change.
 - Architected a Claude API integration (structured outputs, prompt caching, explicit failure handling) in which code generates every number and the model writes cited narrative only. In offline evaluation, a claim-level validator correctly rejected or sent to human review all 18 known-bad drafts. Live model evaluation was scoped and cost-gated but deferred.
-- Delivered a Streamlit dashboard for non-technical coordinators with 123 automated tests, plus a security and governance pack, a reuse guide, a simulated tabletop workshop and a proposed pilot plan with go/no-go criteria.
+- Delivered a Streamlit dashboard for non-technical coordinators with 133 automated tests and offline CI, plus a security and governance pack, a reuse guide, a simulated tabletop workshop and a proposed pilot plan with go/no-go criteria.
 
 ## Licence
 The original code and documentation in this repository are released under the [MIT License](LICENSE).

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -86,32 +87,76 @@ def key_configured() -> bool:
     return False
 
 
+def fetch_public_data() -> tuple[bool, str]:
+    """Download the public TabNet sample with the repository's own fetch scripts (no API, no key).
+
+    Each script contacts only tabnet.datasus.gov.br, checks the content before saving, writes nothing if a
+    query fails, and refuses to replace an existing snapshot (no --force is ever passed from the app).
+    """
+    log = []
+    for script in ("fetch_tabnet.py", "fetch_health_regions.py"):
+        r = subprocess.run([sys.executable, str(ROOT / "scripts" / script)], capture_output=True, text=True,
+                           timeout=600, cwd=str(ROOT))
+        log.append(f"{script}: exit {r.returncode}\n{(r.stdout or '')[-400:]}{(r.stderr or '')[-400:]}")
+        if r.returncode != 0:
+            return False, "\n".join(log)
+    return True, "\n".join(log)
+
+
 # ------------------------------------------------------------------------------ data
 RAW_DIR, REF_DIR = str(dd.raw_dir()), str(dd.ref_dir())
 try:
     B = bundle(RAW_DIR, REF_DIR)
 except Exception as e:  # missing or altered raw files
-    st.error("The verified data sample is not available or failed its integrity check.")
-    st.code(".venv\\Scripts\\python.exe scripts\\fetch_tabnet.py\n.venv\\Scripts\\python.exe scripts\\fetch_health_regions.py")
+    st.title("Measles SignalCheck AI")
+    if not (Path(RAW_DIR) / "manifest.json").exists():
+        st.warning("**The public data sample is not on this computer or server yet.** It is not stored in the "
+                   "GitHub repository. It is downloaded directly from the Brazilian Ministry of Health's DATASUS "
+                   "TabNet (public, aggregate, no login; about 23 KB of tables plus a 2.1 MB form page for the "
+                   "health-region list). No Anthropic API is called.", icon="📥")
+        if st.button("Download the public data from DATASUS TabNet", type="primary"):
+            with st.spinner("Downloading from tabnet.datasus.gov.br …"):
+                ok, log = fetch_public_data()
+            if ok:
+                st.cache_resource.clear()
+                st.cache_data.clear()
+                st.rerun()
+            st.error("The download failed (DATASUS TabNet may be unavailable). Try again later or run the "
+                     "fetch scripts locally.")
+            st.code(log)
+        st.caption("Or run locally: `python scripts/fetch_tabnet.py` and `python scripts/fetch_health_regions.py`.")
+    else:
+        st.error("The data sample failed its integrity check (a raw file is missing or was altered), so it "
+                 "will not be used. Re-download it with the fetch scripts.")
+        st.code("python scripts/fetch_tabnet.py\npython scripts/fetch_health_regions.py")
     st.caption(f"Details: {type(e).__name__}: {e}")
     st.stop()
 
 units = B.units
 
+# Optional deep links, e.g. ?period=2019&unit=330490&tab=Investigation+brief (invalid values are ignored).
+TABS = ["Overview", "Municipality trends", "Signals", "Investigation brief", "Data & limitations"]
+qp = st.query_params
+q_period = next((p for p in dd.PERIODS if str(p[0]) == qp.get("period", "")), (2019, 2020))
+q_tab = qp.get("tab") if qp.get("tab") in TABS else "Overview"
+q_unit = qp.get("unit", "330490")
+
 # ---------------------------------------------------------------------------- sidebar
 with st.sidebar:
     st.markdown("### 🔎 Measles SignalCheck AI")
     st.caption("Rio de Janeiro state · MMR first dose · 2015–2022")
-    period = st.selectbox("Comparison period", dd.PERIODS, index=dd.PERIODS.index((2019, 2020)),
+    period = st.selectbox("Comparison period", dd.PERIODS, index=dd.PERIODS.index(q_period),
                           format_func=lambda p: f"{p[0]} → {p[1]}",
                           help="Only consecutive years within 2015–2022 are compared (like-for-like reporting).")
     y1, y2 = period
     regions = ["All health regions"] + (sorted(units.cir_name.unique()) if B.regions_available else [])
-    region = st.selectbox("Health region (Região de Saúde)", regions, disabled=not B.regions_available,
+    q_region = qp.get("region") if qp.get("region") in regions else "All health regions"
+    region = st.selectbox("Health region (Região de Saúde)", regions, index=regions.index(q_region),
+                          disabled=not B.regions_available,
                           help=None if B.regions_available else "Run scripts/fetch_health_regions.py to enable.")
     in_region = units if region == "All health regions" else units[units.cir_name == region]
     names = dict(zip(in_region.unit_code, in_region.unit_name.str.title()))
-    default_code = "330490" if "330490" in names else next(iter(names))
+    default_code = q_unit if q_unit in names else ("330490" if "330490" in names else next(iter(names)))
     code = st.selectbox("Municipality", list(names), index=list(names).index(default_code),
                         format_func=lambda c: f"{names[c]} ({c})")
     st.divider()
@@ -133,9 +178,10 @@ sig_region = sig if region == "All health regions" else sig[sig.health_region ==
 st.title("Measles SignalCheck AI")
 st.markdown("**Find municipalities whose recorded measles first-dose (MMR1) data changed sharply, "
             "and decide what to verify first — without mistaking a records problem for a change in vaccination.**")
+st.caption("🧪 Offline demonstration: figures are official public DATASUS data processed by tested rules. "
+           "Live Claude generation is **not enabled**; no Anthropic API calls are made.")
 
-tab_over, tab_explore, tab_signals, tab_brief, tab_data = st.tabs(
-    ["Overview", "Municipality trends", "Signals", "Investigation brief", "Data & limitations"])
+tab_over, tab_explore, tab_signals, tab_brief, tab_data = st.tabs(TABS, default=q_tab)
 
 # --------------------------------------------------------------------------- overview
 with tab_over:

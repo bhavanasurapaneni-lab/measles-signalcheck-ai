@@ -25,8 +25,12 @@ OUT = Path(__file__).resolve().parents[1] / "data" / "raw" / "brazil_reference"
 FORM_URL = f"{ft.BASE}/cgi/dhdat.exe?bd_pni/cpnibr.def"
 
 
-def main() -> int:
-    raw = ft.http_get(FORM_URL)
+def main(argv: list[str] | None = None) -> int:
+    force = "--force" in (argv if argv is not None else sys.argv[1:])
+    if (OUT / "manifest.json").exists() and not force:
+        print(f"A health-region mapping already exists in {OUT}; nothing was downloaded. Use --force to replace it.")
+        return 0
+    raw = ft.http_get(FORM_URL)          # trusted-host check, including redirects
     fp = ft.FormParser()
     fp.feed(raw.decode("latin-1"))
     rows = []
@@ -36,6 +40,8 @@ def main() -> int:
             cir_code, _, cir_name = ft.norm(parts[0]).partition(" ")
             rows.append({"ibge_code": parts[1], "cir_code": cir_code, "cir_name": cir_name})
     rows = sorted({r["ibge_code"]: r for r in rows}.values(), key=lambda r: r["ibge_code"])
+    if not 50 <= len(rows) <= 200:   # Rio de Janeiro has 92 municipalities; anything else means a bad page
+        raise SystemExit(f"unexpected number of municipalities in the CIR selector ({len(rows)}); nothing was saved")
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "tabnet_cpnibr_form.html").write_bytes(raw)
     buf = io.StringIO()

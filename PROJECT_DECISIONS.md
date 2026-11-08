@@ -5,6 +5,19 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 
 ---
 
+## D-034 · Hosted demo downloads data from the official source rather than the repository (Accepted design; deployment not yet approved, Milestone 9)
+- **Fact:** I found no explicit reuse licence for TabNet exports. The SUS open-data portal states CC BY-ND 3.0, and the Ministry's open-data plans cite CC BY with attribution. The raw exports therefore stay **out of Git**.
+- **Decision:** when data is missing, the dashboard offers a "Download the public data from DATASUS TabNet" button that runs the repository's own fetch scripts. No Anthropic API call is involved. Altered data is still refused.
+- **Trade-off:** depends on TabNet being reachable from the hosting region (unverified for Streamlit Community Cloud), and storage there is temporary. Plan in `docs/DEPLOYMENT_STREAMLIT_CLOUD.md`; **not deployed**.
+
+## D-033 · Portfolio polish without new dependencies (Accepted, Milestone 9)
+- **Screenshots:** real captures taken with headless Microsoft Edge from deep-linked views. The demo brief banner is kept visible.
+- **Deep links:** `?period=&region=&unit=&tab=`. Invalid values fall back to defaults (tested).
+- **CI:** GitHub Actions on Ubuntu and Windows, Python 3.12, pinned requirements, `SIGNALCHECK_OFFLINE=1`, read-only permissions, no secrets. Without the uncommitted data, CI runs 30 tests and reports 103 as skipped, with reasons.
+- **Binding:** `server.address` moved from `config.toml` to the local launch command (`--server.address localhost`), because hosted platforms must bind their own interface. Viewer toolbar mode hides "Deploy".
+- **Download safety:** fetch scripts accept only `tabnet.datasus.gov.br` (including redirects), reject non-table responses, write files only after every query succeeds, and never replace an existing snapshot without `--force` (8 tests).
+- **Housekeeping:** removed the placeholder `.gitkeep` files for `app/`, `docs/` and `notebooks/` (the empty `notebooks/` folder made the repository look unfinished).
+
 ## D-032 · MIT licence for original code; data not covered (Accepted, Milestone 8)
 - `LICENSE` (MIT, © 2026 Bhavana Surapaneni) covers the repository's original code and documentation. Ministry of Health data are not redistributed; quoted aggregates are attributed (README → Licence).
 

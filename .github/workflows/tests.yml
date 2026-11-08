@@ -1,0 +1,66 @@
+name: offline-tests
+
+# Runs the offline test suite. No Anthropic API key, no secrets, no paid calls.
+# The public DATASUS source files are not committed to the repository, so tests that need them are
+# skipped here (they run locally after scripts/fetch_tabnet.py and scripts/fetch_health_regions.py).
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    name: pytest (${{ matrix.os }}, Python 3.12)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      SIGNALCHECK_OFFLINE: "1"   # the brief client can never create a real API client
+      PYTHONIOENCODING: "utf-8"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run offline tests
+        run: python -m pytest -q -rs --junitxml=pytest-results.xml
+
+      - name: Summarise results (including why tests were skipped)
+        if: always()
+        shell: python
+        run: |
+          import os, xml.etree.ElementTree as ET
+          from collections import Counter
+          root = ET.parse("pytest-results.xml").getroot()
+          suite = root if root.tag == "testsuite" else root.find("testsuite")
+          total, fail, err, skip = (int(suite.get(k, 0)) for k in ("tests", "failures", "errors", "skipped"))
+          reasons = Counter(s.get("message", "") for s in suite.iter("skipped"))
+          lines = [
+              f"### Offline tests on {os.environ.get('RUNNER_OS')}",
+              f"- **{total - fail - err - skip} passed**, {fail} failed, {err} errors, **{skip} skipped**",
+              "- No Anthropic API key is used and no paid calls are possible (`SIGNALCHECK_OFFLINE=1`).",
+              "- Skipped tests need the public DATASUS TabNet files, which are not committed to this repository. "
+              "Run `scripts/fetch_tabnet.py` and `scripts/fetch_health_regions.py` locally for the full suite.",
+              "", "| Skip reason | Tests |", "|---|---:|",
+          ] + [f"| {r or '(no reason)'} | {n} |" for r, n in reasons.most_common()]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write("\n".join(lines) + "\n")
+          print("\n".join(lines))

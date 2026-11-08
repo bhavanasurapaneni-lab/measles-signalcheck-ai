@@ -144,12 +144,41 @@ def test_selection_without_demo_brief_is_explained():
     assert any("No demonstration brief exists" in i.value for i in at.info)
 
 
-def test_missing_data_shows_guidance_not_crash(tmp_path, monkeypatch):
+def test_missing_data_offers_official_download_not_crash(tmp_path, monkeypatch):
     monkeypatch.setenv("SIGNALCHECK_RAW_DIR", str(tmp_path / "missing"))
     at = _app()
+    at.run()                                   # the download button is NOT clicked (no network in tests)
+    assert not at.exception
+    assert any("not on this computer or server yet" in w.value for w in at.warning)
+    assert any("Download the public data from DATASUS TabNet" in b.label for b in at.button)
+    assert any("No Anthropic API is called" in w.value for w in at.warning)
+
+
+@needs_raw
+@needs_regions
+def test_deep_link_query_parameters():
+    at = _app()
+    at.query_params["period"] = "2018"
+    at.query_params["region"] = "Norte"
+    at.query_params["unit"] = "330240"           # Macaé
     at.run()
     assert not at.exception
-    assert any("not available or failed its integrity check" in e.value for e in at.error)
+    assert at.selectbox[0].value == (2018, 2019)
+    assert at.selectbox[1].value == "Norte"
+    assert at.selectbox[2].value == "330240"
+    bad = _app()
+    bad.query_params["period"] = "1999"          # invalid values fall back to defaults
+    bad.query_params["unit"] = "999999"
+    bad.run()
+    assert not bad.exception and bad.selectbox[0].value == (2019, 2020)
+
+
+@needs_raw
+@needs_regions
+def test_offline_notice_is_on_the_main_page():
+    at = _app()
+    at.run()
+    assert any("Live Claude generation is **not enabled**" in c.value for c in at.caption)
 
 
 @needs_raw

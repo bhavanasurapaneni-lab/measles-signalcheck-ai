@@ -9,8 +9,13 @@ font = "sans serif"
 
 [server]
 headless = true
-# Serve only on this computer (not the local network).
-address = "localhost"
+# Local runs: start with `--server.address localhost` (see README) so the dashboard is not exposed on
+# the local network. The address is NOT set here because hosted platforms (e.g. Streamlit Community
+# Cloud) must bind their own interface.
+
+[client]
+# Hide developer-only toolbar items (e.g. "Deploy") from viewers.
+toolbarMode = "viewer"
 
 [browser]
 gatherUsageStats = false

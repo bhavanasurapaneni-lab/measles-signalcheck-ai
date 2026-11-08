@@ -110,9 +110,28 @@ def norm(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
+TRUSTED_HOST = "tabnet.datasus.gov.br"
+
+
+def require_trusted(url: str) -> str:
+    """Only the official DATASUS TabNet host may be contacted."""
+    host = urllib.parse.urlparse(url).hostname or ""
+    if host.lower() != TRUSTED_HOST:
+        raise SystemExit(f"refusing to download from untrusted host {host!r} (expected {TRUSTED_HOST})")
+    return url
+
+
 def http_get(url: str) -> bytes:
+    require_trusted(url)
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120) as r:
+        require_trusted(r.geturl())          # a redirect must not leave the trusted host
         return r.read()
+
+
+def looks_like_tabnet_table(raw: bytes) -> bool:
+    """A TabNet CSV export has a quoted 'Município' header row and a 'Total' row (not an HTML error page)."""
+    text = raw.decode("latin-1", errors="replace")
+    return '"Munic' in text and "Total" in text and "<html" not in text.lower()
 
 
 def build_form(q: dict) -> tuple[list[tuple[str, str]], dict]:
@@ -146,20 +165,20 @@ def fetch(q: dict) -> dict:
     fields, resolved = build_form(q)
     body = urllib.parse.urlencode(fields, encoding="latin-1").encode("ascii")
     req = urllib.request.Request(
-        q["post_url"], data=body,
+        require_trusted(q["post_url"]), data=body,
         headers={**UA, "Content-Type": "application/x-www-form-urlencoded"},
     )
     with urllib.request.urlopen(req, timeout=180) as r:
+        require_trusted(r.geturl())
         html = r.read().decode("latin-1")
     links = re.findall(r"""href\s*=\s*["']?([^"'\s>]+\.csv)""", html, flags=re.I)
     if not links:
         raise SystemExit(f"[{q['id']}] no CSV link in TabNet response; first 500 chars:\n{html[:500]}")
-    csv_url = urllib.parse.urljoin(q["post_url"], links[0])
+    csv_url = require_trusted(urllib.parse.urljoin(q["post_url"], links[0]))
     raw = http_get(csv_url)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = OUT_DIR / q["file"]
-    path.write_bytes(raw)  # saved exactly as served; never modified afterwards
-    return {
+    if not looks_like_tabnet_table(raw):
+        raise SystemExit(f"[{q['id']}] downloaded content is not a TabNet table; nothing was saved")
+    return raw, {
         "id": q["id"],
         "file": q["file"],
         "description": q["description"],
@@ -173,8 +192,18 @@ def fetch(q: dict) -> dict:
     }
 
 
-def main() -> int:
-    entries = [fetch(q) for q in QUERIES]
+def main(argv: list[str] | None = None) -> int:
+    force = "--force" in (argv if argv is not None else sys.argv[1:])
+    if (OUT_DIR / "manifest.json").exists() and not force:
+        print(f"A data snapshot already exists in {OUT_DIR}; nothing was downloaded. "
+              "Use --force to replace it.")
+        return 0
+    # Download everything first; write only if every query succeeded (no half-replaced snapshot).
+    results = [fetch(q) for q in QUERIES]
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    for raw, entry in results:
+        (OUT_DIR / entry["file"]).write_bytes(raw)  # saved exactly as served; never modified afterwards
+    entries = [entry for _, entry in results]
     manifest = {
         "source": "Ministério da Saúde / DATASUS TabNet (SI-PNI and SINASC), public aggregate tables",
         "state": "Rio de Janeiro (UF 33)",

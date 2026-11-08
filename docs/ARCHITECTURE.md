@@ -53,7 +53,7 @@ flowchart TD
 | Claude client | `brief_client.py` | One `messages.parse` call per packet | Pre-send packet validation. Each failure has an explicit status. No refusal fallback. Offline switch |
 | Brief validator | `brief_validator.py` | Claim-level checks | Rejects numbers, wrong place, wrong indicator, wrong direction, minimising, unhedged causes and injection echoes. Interpretive verbs go to human review |
 | Interface | `app/streamlit_app.py`, `dashboard_data.py`, `demo_briefs.py` | Coordinator workflow | Weighted aggregates. Offline banner. Live switch disabled. Safe error states |
-| Evaluation | `evals/`, `tests/` | Offline evaluation, gated live harness | 123 tests. Live runs need an approved spending cap |
+| Evaluation | `evals/`, `tests/` | Offline evaluation, gated live harness | 133 tests; offline CI (GitHub Actions). Live runs need an approved spending cap |
 
 ## 4. Data flow for one question
 *"Why did São Gonçalo's MMR1 coverage collapse in 2020?"*
@@ -93,7 +93,7 @@ Full log in `PROJECT_DECISIONS.md`.
 | Capability | Status |
 |---|---|
 | Reproducible ingestion of official public data with provenance | **Demonstrated** (tests, manifest hashes) |
-| Deterministic signals and validated evidence packets | **Demonstrated** (123 tests, 644 statewide packets validated in Milestone 4) |
+| Deterministic signals and validated evidence packets | **Demonstrated** (133 tests, 644 statewide packets validated in Milestone 4) |
 | Claim-level grounding validator | **Demonstrated offline** on 20 labelled synthetic drafts (20/20 expected verdicts) |
 | Claude API integration | **Implemented; NOT validated with a live API call** (deferred, D-025) |
 | Dashboard | **Demonstrated locally** (headless app tests and a manual browser walkthrough) |

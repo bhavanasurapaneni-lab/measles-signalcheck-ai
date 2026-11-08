@@ -14,7 +14,7 @@ or live model accuracy is claimed.*
 | 1:20–2:10 | **Signals**: legend and table | "Signals are review triggers: change signals, data-quality warnings, and no causes. São Gonçalo is flagged for a −69.4% recorded-dose change, a coverage swing, coverage above 100% in 2019, and a large gap from the state." |
 | 2:10–3:00 | **Municipality trends** (São Gonçalo) | "Recorded doses, indexed to 2015, against the state; published coverage was 121.66% in 2019, implausible as true coverage. SINASC births changed only about 5%: a reference series, not the official denominator." |
 | 3:00–4:15 | **Investigation brief** | "Four verified observations, each with evidence IDs (F#, D#). Under each: what the data *cannot* tell you. The yellow banner says this sample brief is **hand-written, not Claude output**. In live mode Claude writes only the narrative: no numbers, every claim cites O1–O4, causes appear only as hedged possibilities. The validator accepted this one. Download the evidence packet to show traceability." |
-| 4:15–5:00 | **Data & limitations**; then the README box | "Sources, the 2023 reporting-system break, and permitted versus prohibited readings. Honest status: 123 tests pass; the Claude API path is implemented but **not yet validated with a live call**; nothing has been used by a real health team." |
+| 4:15–5:00 | **Data & limitations**; then the README box | "Sources, the 2023 reporting-system break, and permitted versus prohibited readings. Honest status: 133 tests pass; the Claude API path is implemented but **not yet validated with a live call**; nothing has been used by a real health team." |
 
 **Key message to close:** *Python computes and verifies every number; Claude only explains verified evidence and
 proposes checks; a person decides.*
