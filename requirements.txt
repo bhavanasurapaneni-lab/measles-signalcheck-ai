@@ -1,15 +1,20 @@
+# Exact versions tested with Python 3.12.10 on Windows 11 (Nov 2026; 122 tests passing).
+# Pinned for reproducibility: the code relies on anthropic 2.x (messages.parse with
+# output_format, httpx2-based exceptions) and recent Streamlit widgets (st.pills, width="stretch").
+
 # Core data handling
-pandas>=2.2
+pandas==3.1.1
 
 # Dashboard and charts
-streamlit>=1.40
-plotly>=5.24
+streamlit==1.67.0
+plotly==7.1.0
 
-# Claude API
-anthropic>=0.40
+# Claude API (only needed for the optional live path; tests use an offline fake client)
+anthropic==2.6.0
+pydantic==2.14.3
 
-# Load secrets from .env
-python-dotenv>=1.0
+# Load settings from .env
+python-dotenv==1.2.4
 
 # Testing
-pytest>=8.0
+pytest==9.2.0

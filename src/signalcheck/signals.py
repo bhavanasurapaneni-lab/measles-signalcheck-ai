@@ -85,9 +85,11 @@ class Thresholds:
 def load_thresholds(path: str | Path = DEFAULT_CONFIG) -> Thresholds:
     raw = Path(path).read_bytes()
     c = tomllib.loads(raw.decode("utf-8"))
+    # Hash content with normalised line endings so Windows (CRLF) and Unix (LF) checkouts agree.
+    normalised = raw.replace(b"\r\n", b"\n")
     return Thresholds(
         version=str(c["version"]),
-        sha256=hashlib.sha256(raw).hexdigest(),
+        sha256=hashlib.sha256(normalised).hexdigest(),
         consecutive_years_only=bool(c["comparison"]["consecutive_years_only"]),
         dose_change_pct=float(c["recorded_dose_change"]["min_abs_relative_change_pct"]),
         coverage_change_pp=float(c["reported_coverage_change"]["min_abs_change_pp"]),

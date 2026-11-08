@@ -5,6 +5,15 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 
 ---
 
+## D-032 · MIT licence for original code; data not covered (Accepted, Milestone 8)
+- `LICENSE` (MIT, © 2026 Bhavana Surapaneni) covers the repository's original code and documentation. Ministry of Health data are not redistributed; quoted aggregates are attributed (README → Licence).
+
+## D-031 · Publication hardening (Accepted, Milestone 8)
+- **Pinned dependencies** in `requirements.txt` to the tested versions. The old floors (`anthropic>=0.40`, `streamlit>=1.40`) allowed versions that lack `messages.parse(output_format=…)`, the `httpx2` exceptions, `st.pills` and `width="stretch"`. **Trade-off:** security updates need a deliberate bump and a re-run of the tests.
+- **Dashboard bound to `localhost`** (`.streamlit/config.toml`). Streamlit's default exposed it on the local network.
+- **Line-ending-independent hashes** for the config and prompt. A fresh Windows clone (CRLF checkout) produced a different config SHA-256 and failed the example-packet test. Hashes now normalise `\r\n` to `\n`, with a new test.
+- **`.gitignore`:** added `.claude/` and `limitations.pdf`.
+
 ## D-030 · Workshop and pilot are labelled simulated or proposed (Accepted, Nov 2026)
 - The workshop materials are marked **SIMULATED** (not delivered to any organisation). Tabletop injects are marked fictional. All figures are real TabNet values.
 - `docs/PILOT_PLAN.md` is a **proposal**: success measures are targets to negotiate, not results. No partnership exists.

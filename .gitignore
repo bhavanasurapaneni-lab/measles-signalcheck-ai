@@ -32,6 +32,10 @@ data/processed/*
 # Streamlit local secrets
 .streamlit/secrets.toml
 
+# Local tool configuration (Claude Code preview settings) and stray local copies
+.claude/
+limitations.pdf
+
 # Editor / OS
 .vscode/
 .idea/

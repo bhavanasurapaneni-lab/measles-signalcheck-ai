@@ -198,6 +198,14 @@ def test_synthetic_tiny_coverage_flags_unstable_decomposition():
     assert any("unstable" in c for c in cov["cautions"])
 
 
+def test_config_hash_ignores_line_endings(tmp_path):
+    cfg = (Path(__file__).resolve().parents[1] / "config" / "signal_thresholds.toml").read_bytes()
+    lf, crlf = tmp_path / "lf.toml", tmp_path / "crlf.toml"
+    lf.write_bytes(cfg.replace(b"\r\n", b"\n"))
+    crlf.write_bytes(cfg.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
+    assert load_thresholds(lf).sha256 == load_thresholds(crlf).sha256 == T.sha256
+
+
 def test_synthetic_thresholds_are_configurable(tmp_path):
     cfg = (Path(__file__).resolve().parents[1] / "config" / "signal_thresholds.toml").read_text(encoding="utf-8")
     p = tmp_path / "t.toml"

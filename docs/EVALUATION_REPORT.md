@@ -11,7 +11,7 @@
 ## 1. Summary
 | Area | Result |
 |---|---|
-| Automated tests | **122 passed, 0 failed, 0 skipped** (`pytest -q`, about 55–75 s) |
+| Automated tests | **123 passed, 0 failed, 0 skipped** with data (`pytest -q`, about 55–75 s). Fresh clone without data: 22 passed, 101 skipped, 0 failed |
 | Data integrity | 3 raw exports match their SHA-256 manifest. 92 municipalities; years complete; 0 missing or unparseable cells |
 | Agreement with published figures | State coverage reconstructed from municipal values is within 0.3 pts of TabNet totals (2019–2021). National dose filter reproduces Brazil's WHO-reported target population within 0.1% |
 | Evidence packets | 644 municipality-year packets (92 × 7) built and validated: 0 failures of schema, reference, grounding or language checks |
@@ -24,10 +24,10 @@
 |---|---:|---|
 | `tests/test_brazil_poc.py` | 11 | Manifest hashes, aggregate-only headers, IBGE codes, years, types, totals, published state values, São Gonçalo reference values |
 | `tests/test_connector.py` | 18 | Canonical schema; separate measures; raw files unchanged; reproducible São Gonçalo case; coverage safeguards; refusal across 2023; altered, missing or invalid inputs; NaN reported, not imputed |
-| `tests/test_signals.py` | 34 | Real reference cases; stable control; weighted state benchmark; reproducible packets for all units; synthetic anomaly fixtures; negative tests for unsupported interpretations |
+| `tests/test_signals.py` | 35 | Real reference cases; stable control; weighted state benchmark; reproducible packets for all units; synthetic anomaly fixtures; negative tests for unsupported interpretations |
 | `tests/test_briefs.py` | 43 | Observations; request contract; 20 draft cases; capital-name rule; accuracy metrics; every API failure path; refusal without fallback; truncation; offline mode; no key in source |
 | `tests/test_dashboard.py` | 16 | Region mapping; weighted series; region totals equal state; signal table; demo briefs validate; headless app run; all periods and regions; empty results; missing or altered data; app never imports the API client |
-| **Total** | **122** | |
+| **Total** | **123** | |
 
 ## 3. Numerical and citation grounding checks (verified)
 **Data layer (observed values)**
@@ -117,7 +117,7 @@ These counts show high volatility in municipal administrative data. Thresholds a
 
 ## 9. Reproduce
 ```powershell
-.\.venv\Scripts\python.exe -m pytest -v          # 122 tests
+.\.venv\Scripts\python.exe -m pytest -v          # 123 tests
 .\.venv\Scripts\python.exe -m evals.run_offline   # validator evaluation + simulated API outcomes
 .\.venv\Scripts\python.exe scripts\run_signals.py # statewide scan (counts in section 6)
 ```

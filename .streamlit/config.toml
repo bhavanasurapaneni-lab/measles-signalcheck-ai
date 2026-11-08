@@ -9,6 +9,8 @@ font = "sans serif"
 
 [server]
 headless = true
+# Serve only on this computer (not the local network).
+address = "localhost"
 
 [browser]
 gatherUsageStats = false

@@ -53,7 +53,8 @@ def prompt_text() -> str:
 
 
 def prompt_sha256() -> str:
-    return hashlib.sha256(PROMPT_PATH.read_bytes()).hexdigest()
+    """Content hash with normalised line endings (identical on Windows and Unix checkouts)."""
+    return hashlib.sha256(PROMPT_PATH.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def settings() -> dict:

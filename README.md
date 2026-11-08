@@ -17,9 +17,18 @@ hypotheses to check. Each brief is validated claim by claim before a person sees
 > - ✅ Reproducible ingestion of official Brazilian Ministry of Health data (SI-PNI and SINASC via DATASUS TabNet) with SHA-256 provenance
 > - ✅ Deterministic signal rules and schema-validated evidence packets: **644 municipality-year packets validated**
 > - ✅ Claim-level grounding validator: **20/20 expected verdicts** on labelled synthetic drafts (offline)
-> - ✅ Local Streamlit dashboard for non-technical coordinators; **122 automated tests pass**
+> - ✅ Local Streamlit dashboard for non-technical coordinators; **123 automated tests pass**
 > - ⏸️ **Claude API integration implemented but NOT validated with a live API call** (deferred; $0 spent)
 > - ❌ Not demonstrated: use by real health teams, health impact, production reliability, clinical validation
+
+**Data:** official, public, aggregate data from Brazil's Ministry of Health (DATASUS TabNet: SI-PNI immunization
+doses and coverage; SINASC live births; health-region mapping). 92 municipalities, 2015–2022. No personal records.
+
+**Why Claude, and why only here.** Counting, comparing and flagging are deterministic, so Python does them and
+they are tested. What coordinators lack is time to turn a table of flags into a clear, cautious note: what the
+records show, what they cannot show, and which checks to run first, in language a programme lead can act on.
+That is the part Claude writes. Its output is constrained to cite verified observations and is checked before
+anyone sees it.
 
 *Portfolio project by Bhavana Surapaneni, prepared for Anthropic's Applied AI Architect, Beneficial Deployments
 (Global & Public Health) role. Not an official tool of WHO, Anthropic or the Brazilian Ministry of Health.*
@@ -50,6 +59,8 @@ flowchart LR
 - **Claude is constrained by design:** one structured-output call (`messages.parse`), a cached system prompt, explicit effort setting, no refusal fallback (for reproducible evaluation), and a validator that rejects numbers, wrong places, wrong indicators, wrong directions, causal claims and prompt-injection echoes.
 
 ## Demonstration walkthrough
+A timed five-minute script with what to say at each step is in [docs/DEMO_WALKTHROUGH.md](docs/DEMO_WALKTHROUGH.md).
+
 1. Install and launch (below). The dashboard opens in **offline demonstration mode**.
 2. Sidebar: period **2019 → 2020**, region **Metropolitana II**, municipality **São Gonçalo**.
 3. **Overview**: statewide recorded doses fell 36.4%; Metropolitana II fell 64.7%.
@@ -88,7 +99,7 @@ python -m venv .venv
 ## Evaluation results (summary)
 | Area | Result |
 |---|---|
-| Automated tests | 122 passed (connector, signals, packets, briefs, dashboard, failure modes) |
+| Automated tests | 123 passed (connector, signals, packets, briefs, dashboard, failure modes); a fresh clone with no data passes 22 and skips 101 data-dependent tests |
 | Agreement with published figures | State coverage within 0.3 pts of TabNet totals; national dose filter reproduces the WHO-reported target within 0.1% |
 | Evidence packets | 644/644 statewide packets pass schema, reference, number-grounding and language checks |
 | Brief validator (offline) | 20/20 expected verdicts across 18 failure modes: wrong number, place, year, indicator or direction; causal or uptake claims; injection; uncovered evidence |
@@ -122,7 +133,7 @@ src/signalcheck/                connectors/, schema, tabnet, coverage, signals, 
 scripts/                        fetch_tabnet, fetch_health_regions, run_signals, check_api_key
 config/ schemas/ prompts/       thresholds, packet JSON Schema, versioned prompt + template
 evals/                          cases, fake client, offline and (gated) live harnesses
-tests/                          122 tests
+tests/                          123 tests
 docs/                           architecture, evaluation, security, reuse, workshop, pilot, examples
 ```
 
@@ -131,7 +142,13 @@ docs/                           architecture, evaluation, security, reuse, works
 - Built an evidence-grounded immunization data-quality tool on official Brazilian Ministry of Health data (SI-PNI and SINASC, 92 municipalities, 2015–2022), with reproducible, hash-verified ingestion and a reusable connector interface.
 - Designed deterministic signal rules and schema-validated evidence packets (644 validated), separating recorded doses, unpublished denominators and published coverage, and refusing comparisons across a 2023 national reporting-system change.
 - Architected a Claude API integration (structured outputs, prompt caching, explicit failure handling) in which code generates every number and the model writes cited narrative only. In offline evaluation, a claim-level validator correctly rejected or sent to human review all 18 known-bad drafts. Live model evaluation was scoped and cost-gated but deferred.
-- Delivered a Streamlit dashboard for non-technical coordinators with 122 automated tests, plus a security and governance pack, a reuse guide, a simulated tabletop workshop and a proposed pilot plan with go/no-go criteria.
+- Delivered a Streamlit dashboard for non-technical coordinators with 123 automated tests, plus a security and governance pack, a reuse guide, a simulated tabletop workshop and a proposed pilot plan with go/no-go criteria.
+
+## Licence
+The original code and documentation in this repository are released under the [MIT License](LICENSE).
+The licence does **not** cover third-party data: the Brazilian Ministry of Health (DATASUS TabNet) data are
+not redistributed here (they are downloaded by the fetch scripts), and the aggregate figures quoted in the docs
+and in `docs/examples/` are attributed to their official source.
 
 ## Data source and disclaimer
 Ministério da Saúde (Brazil), DATASUS TabNet: SI-PNI *Imunizações – Cobertura* and *Doses Aplicadas* (1994–2022);
