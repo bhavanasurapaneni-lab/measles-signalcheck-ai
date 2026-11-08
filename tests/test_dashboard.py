@@ -152,6 +152,9 @@ def test_missing_data_offers_official_download_not_crash(tmp_path, monkeypatch):
     assert any("not on this computer or server yet" in w.value for w in at.warning)
     assert any("Download the public data from DATASUS TabNet" in b.label for b in at.button)
     assert any("No Anthropic API is called" in w.value for w in at.warning)
+    details = " ".join(c.value for c in at.caption if "Details:" in c.value)
+    assert "manifest not found" in details
+    assert str(tmp_path) not in details and "Users" not in details and ":\\" not in details   # no host paths shown
 
 
 @needs_raw
@@ -202,6 +205,38 @@ def test_altered_raw_file_is_refused(tmp_path, monkeypatch):
     at.run()
     assert not at.exception
     assert any("integrity check" in e.value for e in at.error)
+
+
+def test_dashboard_import_graph_never_loads_anthropic():
+    """Run in a fresh interpreter: importing everything the app imports must not load the SDK."""
+    import subprocess
+    import sys as _sys
+    code = ("import sys; sys.path[:0]=['src']; "
+            "import signalcheck.dashboard_data, signalcheck.demo_briefs, signalcheck.brief_validator, "
+            "signalcheck.briefing; print('anthropic' in sys.modules, 'signalcheck.brief_client' in sys.modules)")
+    r = subprocess.run([_sys.executable, "-c", code], capture_output=True, text=True, cwd=str(ROOT), timeout=120)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.strip() == "False False"
+
+
+def test_download_lock_prevents_concurrent_fetches(tmp_path, monkeypatch):
+    """A second visitor pressing the button during a download is told to wait; no fetch is started."""
+    import types
+    src = (ROOT / "app" / "streamlit_app.py").read_text(encoding="utf-8")
+    start = src.index("def fetch_public_data")
+    end = src.index("# ------------------------------------------------------------------------------ data")
+    ns: dict = {}
+    import os as _os, subprocess as _sp, sys as _sys, time as _time
+    ns.update(os=_os, subprocess=_sp, sys=_sys, time=_time, ROOT=tmp_path)
+    exec(src[start:end], ns)                                        # just the function under test
+    lock = tmp_path / "data" / "raw" / ".download.lock"
+    lock.parent.mkdir(parents=True)
+    lock.write_text("busy")
+    called = []
+    monkeypatch.setattr(_sp, "run", lambda *a, **k: called.append(a) or types.SimpleNamespace(returncode=0, stdout="", stderr=""))
+    ok, msg = ns["fetch_public_data"]()
+    assert not ok and "already in progress" in msg and called == []
+    assert lock.exists()                                            # the other visitor's lock is left alone
 
 
 def test_app_never_imports_the_api_client():

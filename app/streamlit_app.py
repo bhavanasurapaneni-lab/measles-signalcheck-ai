@@ -11,8 +11,10 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -87,20 +89,47 @@ def key_configured() -> bool:
     return False
 
 
+def redact_paths(text: str) -> str:
+    """Replace absolute server/computer paths with project-relative ones before showing them to visitors."""
+    for root in {str(ROOT), str(ROOT.resolve()), str(Path(os.path.realpath(ROOT)))}:
+        text = text.replace(root, ".")
+    # Any remaining absolute path keeps only its file name (no user names or server directories).
+    text = re.sub(r"[A-Za-z]:\\(?:[^\\\r\n:*?\"<>|]+\\)+", "…\\\\", text)
+    return re.sub(r"(?<![\w.:/])/(?:[^/\s:'\"]+/)+", "…/", text)   # not URLs (http://host/...)
+
+
 def fetch_public_data() -> tuple[bool, str]:
     """Download the public TabNet sample with the repository's own fetch scripts (no API, no key).
 
     Each script contacts only tabnet.datasus.gov.br, checks the content before saving, writes nothing if a
     query fails, and refuses to replace an existing snapshot (no --force is ever passed from the app).
     """
+    lock = ROOT / "data" / "raw" / ".download.lock"      # data/raw/* is git-ignored
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)   # one download at a time (shared hosts)
+    except FileExistsError:
+        if time.time() - lock.stat().st_mtime < 900:
+            return False, "Another download is already in progress. Wait a minute, then reload the page."
+        lock.unlink(missing_ok=True)                              # stale lock (>15 min): clear and retry
+        return fetch_public_data()
+    os.close(fd)
     log = []
-    for script in ("fetch_tabnet.py", "fetch_health_regions.py"):
-        r = subprocess.run([sys.executable, str(ROOT / "scripts" / script)], capture_output=True, text=True,
-                           timeout=600, cwd=str(ROOT))
-        log.append(f"{script}: exit {r.returncode}\n{(r.stdout or '')[-400:]}{(r.stderr or '')[-400:]}")
-        if r.returncode != 0:
-            return False, "\n".join(log)
-    return True, "\n".join(log)
+    try:
+        for script in ("fetch_tabnet.py", "fetch_health_regions.py"):
+            try:
+                r = subprocess.run([sys.executable, str(ROOT / "scripts" / script)], capture_output=True,
+                                   text=True, timeout=600, cwd=str(ROOT))
+            except subprocess.TimeoutExpired:
+                return False, f"{script}: timed out after 10 minutes"
+            tail = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()[-3:]
+            # Show only the last lines, with local paths removed (nothing about the host is exposed).
+            log.append(f"{script}: exit {r.returncode} | " + redact_paths(" / ".join(tail)))
+            if r.returncode != 0:
+                return False, "\n".join(log)
+        return True, "\n".join(log)
+    finally:
+        lock.unlink(missing_ok=True)
 
 
 # ------------------------------------------------------------------------------ data
@@ -121,15 +150,15 @@ except Exception as e:  # missing or altered raw files
                 st.cache_resource.clear()
                 st.cache_data.clear()
                 st.rerun()
-            st.error("The download failed (DATASUS TabNet may be unavailable). Try again later or run the "
-                     "fetch scripts locally.")
+            st.error("The download did not complete (DATASUS TabNet may be unavailable or busy). Nothing was "
+                     "half-saved. Try again later, or run the fetch scripts locally.")
             st.code(log)
         st.caption("Or run locally: `python scripts/fetch_tabnet.py` and `python scripts/fetch_health_regions.py`.")
     else:
         st.error("The data sample failed its integrity check (a raw file is missing or was altered), so it "
                  "will not be used. Re-download it with the fetch scripts.")
         st.code("python scripts/fetch_tabnet.py\npython scripts/fetch_health_regions.py")
-    st.caption(f"Details: {type(e).__name__}: {e}")
+    st.caption(f"Details: {type(e).__name__}: {redact_paths(str(e))}")
     st.stop()
 
 units = B.units
@@ -399,5 +428,12 @@ with tab_data:
         st.markdown("#### Not permitted")
         for x in dd.packet(B, "330490", 2019)["prohibited_interpretations"]:
             st.markdown(f"- {x}")
+    st.markdown("#### Privacy and AI use")
+    st.markdown("- This dashboard uses only public, aggregate municipality-year data. It has no user accounts "
+                "and stores nothing about visitors.\n"
+                "- **Live Claude generation is not enabled.** The dashboard contains no code path that calls the "
+                "Anthropic API, and no API key is configured.\n"
+                "- If you are viewing a hosted copy (for example on Streamlit Community Cloud), the hosting "
+                "platform may collect its own usage statistics; this app does not add any.")
     st.caption("Full documentation: DATA_CARD.md, DATA_SOURCES.md, PROJECT_DECISIONS.md, "
                "docs/SECURITY_AND_GOVERNANCE.md. This is a portfolio project, not an official tool.")

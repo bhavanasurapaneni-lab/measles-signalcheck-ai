@@ -21,7 +21,7 @@ hypotheses to check. Each brief is validated claim by claim before a person sees
 > - ✅ Reproducible ingestion of official Brazilian Ministry of Health data (SI-PNI and SINASC via DATASUS TabNet) with SHA-256 provenance
 > - ✅ Deterministic signal rules and schema-validated evidence packets: **644 municipality-year packets validated**
 > - ✅ Claim-level grounding validator: **20/20 expected verdicts** on labelled synthetic drafts (offline)
-> - ✅ Local Streamlit dashboard for non-technical coordinators; **133 automated tests pass**
+> - ✅ Local Streamlit dashboard for non-technical coordinators; **135 automated tests pass**
 > - ⏸️ **Claude API integration implemented but NOT validated with a live API call** (deferred; $0 spent)
 > - ❌ Not demonstrated: use by real health teams, health impact, production reliability, clinical validation
 
@@ -96,7 +96,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe scripts\fetch_tabnet.py            # public DATASUS data (~23 KB)
 .\.venv\Scripts\python.exe scripts\fetch_health_regions.py    # health-region list (2.1 MB form page)
 .\.venv\Scripts\python.exe -m streamlit run app\streamlit_app.py --server.address localhost
-.\.venv\Scripts\python.exe -m pytest -q                       # 133 tests
+.\.venv\Scripts\python.exe -m pytest -q                       # 135 tests
 .\.venv\Scripts\python.exe -m evals.run_offline               # validator evaluation, offline
 ```
 
@@ -119,7 +119,7 @@ Open http://localhost:8501 (stop with Ctrl+C). If you skip the fetch scripts, th
 ## Evaluation results (summary)
 | Area | Result |
 |---|---|
-| Automated tests (local, with data) | 133 passed (connector, signals, packets, briefs, dashboard, failure modes) |
+| Automated tests (local, with data) | 135 passed (connector, signals, packets, briefs, dashboard, failure modes) |
 | Continuous integration ([workflow](.github/workflows/tests.yml)) | Offline, no key, Ubuntu + Windows, Python 3.12. The data isn't in the repo, so CI runs the 30 data-independent tests and reports 103 as skipped, with reasons |
 | Agreement with published figures | State coverage within 0.3 pts of TabNet totals; national dose filter reproduces the WHO-reported target within 0.1% |
 | Evidence packets | 644/644 statewide packets pass schema, reference, number-grounding and language checks |
@@ -157,7 +157,7 @@ src/signalcheck/                connectors/, schema, tabnet, coverage, signals, 
 scripts/                        fetch_tabnet, fetch_health_regions, run_signals, check_api_key
 config/ schemas/ prompts/       thresholds, packet JSON Schema, versioned prompt + template
 evals/                          cases, fake client, offline and (gated) live harnesses
-tests/                          133 tests (.github/workflows/tests.yml runs them offline in CI)
+tests/                          135 tests (.github/workflows/tests.yml runs them offline in CI)
 docs/                           architecture, evaluation, security, reuse, workshop, pilot, examples
 ```
 
@@ -166,7 +166,7 @@ docs/                           architecture, evaluation, security, reuse, works
 - Built an evidence-grounded immunization data-quality tool on official Brazilian Ministry of Health data (SI-PNI and SINASC, 92 municipalities, 2015–2022), with reproducible, hash-verified ingestion and a reusable connector interface.
 - Designed deterministic signal rules and schema-validated evidence packets (644 validated), separating recorded doses, unpublished denominators and published coverage, and refusing comparisons across a 2023 national reporting-system change.
 - Architected a Claude API integration (structured outputs, prompt caching, explicit failure handling) in which code generates every number and the model writes cited narrative only. In offline evaluation, a claim-level validator correctly rejected or sent to human review all 18 known-bad drafts. Live model evaluation was scoped and cost-gated but deferred.
-- Delivered a Streamlit dashboard for non-technical coordinators with 133 automated tests and offline CI, plus a security and governance pack, a reuse guide, a simulated tabletop workshop and a proposed pilot plan with go/no-go criteria.
+- Delivered a Streamlit dashboard for non-technical coordinators with 135 automated tests and offline CI, plus a security and governance pack, a reuse guide, a simulated tabletop workshop and a proposed pilot plan with go/no-go criteria.
 
 ## Licence
 The original code and documentation in this repository are released under the [MIT License](LICENSE).
