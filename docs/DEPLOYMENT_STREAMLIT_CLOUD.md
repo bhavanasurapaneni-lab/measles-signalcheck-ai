@@ -1,6 +1,10 @@
-# Free public demo on Streamlit Community Cloud: plan (NOT deployed)
+# Free public demo on Streamlit Community Cloud
 
-*Prepared in Milestone 9. Nothing has been deployed. Deploy only with the owner's approval.*
+**Live (offline demonstration):** https://measles-signalcheck-ai.streamlit.app/
+
+*Prepared in Milestone 9; deployed by the owner in November 2026 from `main`. The hosted app shows verified public
+DATASUS data and hand-written, labelled example briefs. It has **no live Claude API generation**: the app needs no
+API key, never loads the API client, and its Generate button is disabled and connected to nothing.*
 
 ## 1. Feasibility
 **Feasible**, with one open risk (§5): the app needs no API key, no secrets and no paid services. It runs from
@@ -35,7 +39,7 @@ download the same public, aggregate, municipality × year tables directly from t
 | No credentials or private files exposed | `.env`, `.venv`, raw data and `.claude/` are git-ignored, so they are never in the deployed repo. The app serves only computed aggregates. Error details redact server paths (tested) |
 | No usage tracking by the app | The app adds no analytics and has no accounts. A "Privacy and AI use" section in Data & limitations says so, and notes that the hosting platform may collect its own usage statistics |
 
-## 4. Deployment steps (for the owner, when approved)
+## 4. Deployment steps (as used for the live demo; repeat for a redeploy)
 1. Sign in at **share.streamlit.io** with the GitHub account `bhavanasurapaneni-lab`.
 2. **Create app → Deploy a public app from GitHub:**
    - Repository: `bhavanasurapaneni-lab/measles-signalcheck-ai`
@@ -47,7 +51,7 @@ download the same public, aggregate, municipality × year tables directly from t
 5. Check the four views against `docs/screenshots/`. Then add the demo link to the README, with "offline demonstration" in the link text.
 
 ## 5. Risks and platform notes
-- **Unverified:** whether TabNet (Brazil) responds to requests from Community Cloud's US-hosted servers. If it doesn't, the download fails with a clear message, and the fallback is to decide (with the owner) whether committing the small aggregate snapshot is acceptable under the data terms.
+- **TabNet reachability:** confirmed in November 2026. The hosted app downloaded the data from TabNet and shows the verified figures (e.g. 61.9% weighted coverage and −36.4% recorded doses statewide, 2019 → 2020; 30 of 92 dose-change signals). This can change: if TabNet is down or blocks the host, the download fails with a clear message, and the fallback is to decide (with the owner) whether committing the small aggregate snapshot is acceptable under the data terms.
 - **TabNet uses plain HTTP.** Files are hash-recorded on download, but HTTP itself is not authenticated.
 - **Platform overrides** (Streamlit docs): Community Cloud forces `browser.gatherUsageStats = true` and `client.showErrorDetails = false`, among others, so Streamlit collects usage statistics on the hosted demo.
 - **Network binding:** the hosted platform must bind its own interface. That's why `server.address` is not set in `.streamlit/config.toml`; local runs use `--server.address localhost` instead.

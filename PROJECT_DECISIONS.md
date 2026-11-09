@@ -5,10 +5,11 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 
 ---
 
-## D-034 · Hosted demo downloads data from the official source rather than the repository (Accepted design; deployment not yet approved, Milestone 9)
+## D-034 · Hosted demo downloads data from the official source rather than the repository (Accepted; deployed Nov 2026, Milestone 9)
 - **Fact:** I found no explicit reuse licence for TabNet exports. The SUS open-data portal states CC BY-ND 3.0, and the Ministry's open-data plans cite CC BY with attribution. The raw exports therefore stay **out of Git**.
 - **Decision:** when data is missing, the dashboard offers a "Download the public data from DATASUS TabNet" button that runs the repository's own fetch scripts. No Anthropic API call is involved. Altered data is still refused.
-- **Trade-off:** depends on TabNet being reachable from the hosting region (unverified for Streamlit Community Cloud), and storage there is temporary. Plan in `docs/DEPLOYMENT_STREAMLIT_CLOUD.md`; **not deployed**.
+- **Trade-off:** depends on TabNet being reachable from the hosting region (unverified when decided), and storage there is temporary. Plan in `docs/DEPLOYMENT_STREAMLIT_CLOUD.md`.
+- **Outcome (Nov 2026):** the owner deployed the offline demo at https://measles-signalcheck-ai.streamlit.app/. TabNet was reachable from the host, and the hosted app shows the verified figures. The app needs no API key or secrets and never loads the API client.
 
 ## D-033 · Portfolio polish without new dependencies (Accepted, Milestone 9)
 - **Screenshots:** real captures taken with headless Microsoft Edge from deep-linked views. The demo brief banner is kept visible.

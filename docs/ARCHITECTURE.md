@@ -76,17 +76,17 @@ Full log in `PROJECT_DECISIONS.md`.
 | Doses first, coverage as published (D-010) | The official denominator is unpublished | Coordinators think in coverage %, so the interface has to explain this |
 | Comparisons only within 2015–2022 (D-011) | 2023 SI-PNI/RNDS transition | No recent years |
 | Hand-written JSON Schema validator (D-019) | No new dependency | Less conventional than `jsonschema` |
-| Local-first deployment (D-008) | Public aggregate data, no hosting secrets | No public demo link |
+| Local-first deployment (D-008), plus a public offline demo (D-034) | Public aggregate data, no hosting secrets | The public demo shows offline examples only, no live Claude briefs |
 
 ## 6. Deployment options
-**None implemented beyond local use.**
+**Implemented: A (local) and D (public offline demo at https://measles-signalcheck-ai.streamlit.app/).** The others are options only.
 
 | Option | Fit | Requirements before use |
 |---|---|---|
 | **A. Local workstation** (current) | Single analyst, offline demo | Python 3.11+. Data: a 23 KB sample plus a 2.1 MB TabNet form page (region mapping) |
 | **B. Offline HTML export of briefs** | Low-connectivity field teams (the pattern the IRC case study describes) | Build an export of rendered briefs. No API needed at the point of use |
 | **C. Internal server** (ministry or NGO network) | A team of coordinators | Authentication, HTTPS, audit logging, key held server-side, an approved data-use policy (`SECURITY_AND_GOVERNANCE.md` §9) |
-| **D. Hosted demo** (e.g. Streamlit Community Cloud) | Portfolio reviewers | Demo mode only. No key stored. Data refreshed on build |
+| **D. Hosted demo** (Streamlit Community Cloud, **live**) | Portfolio reviewers | Demo mode only. No key needed or stored. Data downloaded from DATASUS TabNet on first visit after a restart |
 | **E. DHIS2-adjacent** | Ministries running DHIS2 | A new connector for a DHIS2 analytics export (`REUSE_GUIDE.md`). Aggregate data only |
 
 ## 7. Demonstrated vs not demonstrated
@@ -96,7 +96,7 @@ Full log in `PROJECT_DECISIONS.md`.
 | Deterministic signals and validated evidence packets | **Demonstrated** (135 tests, 644 statewide packets validated in Milestone 4) |
 | Claim-level grounding validator | **Demonstrated offline** on 20 labelled synthetic drafts (20/20 expected verdicts) |
 | Claude API integration | **Implemented; NOT validated with a live API call** (deferred, D-025) |
-| Dashboard | **Demonstrated locally** (headless app tests and a manual browser walkthrough) |
+| Dashboard | **Demonstrated** locally (headless app tests and a manual browser walkthrough) and as a public offline demo |
 | Use by real coordinators, health impact, production reliability | **Not demonstrated** |
 
 ## 8. Known limitations

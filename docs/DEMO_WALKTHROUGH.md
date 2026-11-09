@@ -1,11 +1,18 @@
 # Five-minute demonstration: São Gonçalo, 2019 → 2020
 
 *A reproducible script for a recorded or live demo. Every figure below is an observed public value or a tested
-calculation. The brief shown is an **offline demonstration fixture**, not Claude output. No health impact, deployment
-or live model accuracy is claimed.*
+calculation. The brief shown is an **offline demonstration fixture**, not Claude output. No health impact, use by a
+health team, or live model accuracy is claimed.*
 
-**Before you start:** dashboard running (`README.md` → *Install and run on Windows*), browser at
-`http://localhost:8501`, window about 1400 px wide. Sidebar: **2019 → 2020**, **All health regions**, **São Gonçalo**.
+**Live demo:** https://measles-signalcheck-ai.streamlit.app/ (offline demonstration with verified public DATASUS data;
+no live Claude API generation, no API key, no login). It is on a free tier, so **open it a few minutes before you
+present**: a sleeping app takes about a minute to wake, and after a restart you may need to press "Download the
+public data from DATASUS TabNet" once. Start link:
+https://measles-signalcheck-ai.streamlit.app/?period=2019&unit=330490&tab=Overview
+
+**Fallback:** the local dashboard (`README.md` → *Install and run*), browser at `http://localhost:8501`.
+
+**Before you start:** window about 1400 px wide. Sidebar: **2019 → 2020**, **All health regions**, **São Gonçalo**.
 
 | Time | Screen | Say (paraphrase freely) |
 |---|---|---|
