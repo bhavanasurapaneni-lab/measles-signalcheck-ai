@@ -436,4 +436,4 @@ with tab_data:
                 "- If you are viewing a hosted copy (for example on Streamlit Community Cloud), the hosting "
                 "platform may collect its own usage statistics; this app does not add any.")
     st.caption("Full documentation: DATA_CARD.md, DATA_SOURCES.md, PROJECT_DECISIONS.md, "
-               "docs/SECURITY_AND_GOVERNANCE.md. This is a portfolio project, not an official tool.")
+               "docs/SECURITY_AND_GOVERNANCE.md. This is an independent project, not an official tool.")

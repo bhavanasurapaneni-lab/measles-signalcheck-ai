@@ -219,8 +219,6 @@ Sources: the WHO limitations PDF (last updated 15 July 2026), https://cdn.who.in
 
 **NO-GO** for claiming named-district trends from 2019 to 2025 from public WHO data, and for drawing any conclusion about missing facility reports.
 
-**Optional step in parallel (your decision):** email WHO (`vpdata@who.int`) to request access to the 2017–2025 subnational dataset for a non-commercial portfolio project. I won't send anything on your behalf.
-
 ---
 
 ## 10. Addendum (7 Nov 2026): data-gap review and a revised recommendation

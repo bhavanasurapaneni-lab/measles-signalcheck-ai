@@ -43,8 +43,7 @@ records show, what they cannot show, and which checks to run first, in language 
 That is the part Claude writes. Its output is constrained to cite verified observations and is checked before
 anyone sees it.
 
-*Portfolio project by Bhavana Surapaneni, prepared for Anthropic's Applied AI Architect, Beneficial Deployments
-(Global & Public Health) role. Not an official tool of WHO, Anthropic or the Brazilian Ministry of Health.*
+*Independent project by Bhavana Surapaneni. Not an official tool of WHO, Anthropic or the Brazilian Ministry of Health.*
 
 ---
 
@@ -153,10 +152,8 @@ Open http://localhost:8501 (stop with Ctrl+C). If you skip the fetch scripts, th
 | [docs/PILOT_PLAN.md](docs/PILOT_PLAN.md) | Proposed 12-week pilot with a go/no-go framework (no partnership exists) |
 | [docs/DEMO_WALKTHROUGH.md](docs/DEMO_WALKTHROUGH.md) | Timed five-minute demo script (São Gonçalo 2019 → 2020) |
 | [docs/DEPLOYMENT_STREAMLIT_CLOUD.md](docs/DEPLOYMENT_STREAMLIT_CLOUD.md) | Free public offline demo on Streamlit Community Cloud ([live](https://measles-signalcheck-ai.streamlit.app/)): safeguards, steps, risks |
-| [docs/RESUME_PROJECT_SUMMARY.md](docs/RESUME_PROJECT_SUMMARY.md) | Resume entry, verified accomplishments, interview talking points |
 | [DATA_CARD.md](DATA_CARD.md) · [DATA_SOURCES.md](DATA_SOURCES.md) | Dataset documentation and source research |
 | [PROJECT_DECISIONS.md](PROJECT_DECISIONS.md) · [PROJECT_PLAN.md](PROJECT_PLAN.md) | Decision log (D-001…) and milestones |
-| [ANTHROPIC_ROLE_ALIGNMENT.md](ANTHROPIC_ROLE_ALIGNMENT.md) | Mapping to the role's responsibilities |
 
 ## Repository map
 ```
@@ -170,13 +167,6 @@ tests/                          135 tests (.github/workflows/tests.yml runs them
 docs/                           architecture, evaluation, security, reuse, workshop, pilot, examples
 ```
 
-## Resume-ready project bullets
-*Accurate as of Nov 2026; each is supported by code or documents in this repository.*
-- Built an evidence-grounded immunization data-quality tool on official Brazilian Ministry of Health data (SI-PNI and SINASC, 92 municipalities, 2015–2022), with reproducible, hash-verified ingestion and a reusable connector interface.
-- Designed deterministic signal rules and schema-validated evidence packets (644 validated), separating recorded doses, unpublished denominators and published coverage, and refusing comparisons across a 2023 national reporting-system change.
-- Architected a Claude API integration (structured outputs, prompt caching, explicit failure handling) in which code generates every number and the model writes cited narrative only. In offline evaluation, a claim-level validator correctly rejected or sent to human review all 18 known-bad drafts. Live model evaluation was scoped and cost-gated but deferred.
-- Delivered a Streamlit dashboard for non-technical coordinators with 135 automated tests and offline CI, plus a security and governance pack, a reuse guide, a simulated tabletop workshop and a proposed pilot plan with go/no-go criteria.
-
 ## Licence
 The original code and documentation in this repository are released under the [MIT License](LICENSE).
 The licence does **not** cover third-party data: the Brazilian Ministry of Health (DATASUS TabNet) data are
@@ -185,6 +175,6 @@ and in `docs/examples/` are attributed to their official source.
 
 ## Data source and disclaimer
 Ministério da Saúde (Brazil), DATASUS TabNet: SI-PNI *Imunizações – Cobertura* and *Doses Aplicadas* (1994–2022);
-SINASC *Nascidos Vivos – Rio de Janeiro*; CIR health-region mapping. Accessed 7 Nov 2026. This is a learning and
-portfolio project. Its outputs must not replace official programme review, and changes in recorded doses are not
+SINASC *Nascidos Vivos – Rio de Janeiro*; CIR health-region mapping. Accessed 7 Nov 2026. This is an independent
+research project. Its outputs must not replace official programme review, and changes in recorded doses are not
 proof of changes in vaccination uptake.

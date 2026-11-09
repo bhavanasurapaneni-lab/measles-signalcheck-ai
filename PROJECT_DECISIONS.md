@@ -11,7 +11,7 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 - **Trade-off:** depends on TabNet being reachable from the hosting region (unverified when decided), and storage there is temporary. Plan in `docs/DEPLOYMENT_STREAMLIT_CLOUD.md`.
 - **Outcome (Nov 2026):** the owner deployed the offline demo at https://measles-signalcheck-ai.streamlit.app/. TabNet was reachable from the host, and the hosted app shows the verified figures. The app needs no API key or secrets and never loads the API client.
 
-## D-033 · Portfolio polish without new dependencies (Accepted, Milestone 9)
+## D-033 · Presentation polish without new dependencies (Accepted, Milestone 9)
 - **Screenshots:** real captures taken with headless Microsoft Edge from deep-linked views. The demo brief banner is kept visible.
 - **Deep links:** `?period=&region=&unit=&tab=`. Invalid values fall back to defaults (tested).
 - **CI:** GitHub Actions on Ubuntu and Windows, Python 3.12, pinned requirements, `SIGNALCHECK_OFFLINE=1`, read-only permissions, no secrets. Without the uncommitted data, CI runs 30 tests and reports 103 as skipped, with reasons.
@@ -111,9 +111,9 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 - **Adding a dataset** (e.g., WHO admin2 or a DHIS2 export) means one new subclass that declares its files, measures and system breaks.
 - **Rejected:** a plugin registry, a config-driven ETL framework, or a database. All are unnecessary at this scale.
 
-## D-012 · `limitations.pdf`: remove the redundant local copy (Recommended; awaiting owner permission)
+## D-012 · `limitations.pdf`: remove the redundant local copy (Accepted: never committed)
 - **Fact:** `limitations.pdf` in the project root is byte-identical (SHA-256 `1ef7190aaa3010c3…`) to WHO's "Limitations related to globally reported immunization subnational data" (last updated 15 Jul 2026). It arrived through a browser save prompt on 7 Nov 2026.
-- **Recommendation:** **remove the local copy and don't commit it.** Its content is already summarised and linked in `DATA_SOURCES.md` §7 (URL plus hash). It's not used by the code. WHO PDFs are better cited than redistributed. And it isn't the Brazil data source the project now relies on. Delete only with the owner's permission.
+- **Recommendation:** **remove the local copy and don't commit it.** Its content is already summarised and linked in `DATA_SOURCES.md` §7 (URL plus hash). It's not used by the code. WHO PDFs are better cited than redistributed. And it isn't the Brazil data source the project now relies on. The local copy is git-ignored and is never committed.
 
 ## D-011 · Comparison window limited to 2015–2022 (legacy SI-PNI) (Proposed)
 - **Decision:** longitudinal comparisons use only TabNet 2015–2022. No series is joined across the 2023 SI-PNI/RNDS transition.
@@ -132,7 +132,7 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 ## D-008 · Deployment approach: local first, aggregate data only (Proposed)
 - **Decision:** the prototype runs locally (Streamlit on the user's machine). Only **aggregate, public** numbers are sent to the Claude API. Briefs can be exported as Markdown files to share.
 - **Alternatives:** hosting on Streamlit Community Cloud; a single offline HTML file (the IRC pattern); a DHIS2 app.
-- **Trade-off:** running locally avoids hosting secrets and handling anyone else's data, but reviewers can't click a live link. A hosted demo can be added later once security review notes exist. An offline HTML export is a good fit for low-connectivity field teams, but it's deferred so we don't build features before they're needed.
+- **Trade-off:** running locally avoids hosting secrets and handling anyone else's data, but visitors can't click a live link. A hosted demo can be added later once security review notes exist. An offline HTML export is a good fit for low-connectivity field teams, but it's deferred so we don't build features before they're needed.
 
 ## D-007 · Claude explains; Python computes (Proposed)
 - **Decision:** all statistics and flags are computed deterministically in Python. Claude receives a structured **evidence packet** (JSON with IDs) and writes an investigation brief that must cite those evidence IDs. An automated check rejects any number in the brief that isn't in the packet.
@@ -141,7 +141,7 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 
 ## D-006 · Evaluate before adding features (Proposed)
 - **Decision:** an evaluation set of real, documented cases plus deterministic tests is a Milestone 5 gate. A feature isn't "done" until it passes its evaluation.
-- **Trade-off:** slower to demo, but this is exactly the evidence a Beneficial Deployments partner (and reviewer) would ask for.
+- **Trade-off:** slower to demo, but this is exactly the evidence a public-health partner would ask for.
 
 ## D-005 · Synthetic data only as labelled test fixtures (Proposed)
 - **Decision:** no synthetic data is shown to users as observations. Synthetic anomalies may be **injected into copies of real data inside the test suite**, clearly marked, to measure whether detectors catch them.
@@ -176,10 +176,3 @@ Each entry gives its status: **Proposed** (awaiting owner approval), **Accepted*
 ## D-001 · Zambia as candidate country (Superseded by D-002 for the core dataset)
 - **Original decision (Milestone 2):** Zambia, using WHO national and district-band data plus the 2018 admin2 snapshot.
 - **Why superseded:** the owner asked whether the 2018-only district file supports multi-year analysis. **It does not.** It contains one year, so it cannot show change in any named district. Zambia's national, band-level and DHS data remain documented in `DATA_SOURCES.md` as a secondary, lower-data-context example.
-
----
-
-## Open questions (owner decisions)
-1. Approve Brazil / Rio de Janeiro (D-002, D-004) as the core scope?
-2. Keep Zambia as a documented secondary case only (recommended), or build a second adapter later?
-3. Optional: request WHO subnational data access by email (owner's decision; Claude won't send it).

@@ -17,7 +17,7 @@ the data supports or rules out, what it cannot tell you, and the next checks to 
 
 ## Users
 - **Primary:** state, regional and municipal immunization coordinators (non-technical).
-- **Secondary:** epidemiologists and M&E staff; portfolio reviewers.
+- **Secondary:** epidemiologists and M&E staff; programme leads.
 
 ## Success measures
 1. **Grounding:** 100% of numbers in a brief can be traced to the evidence packet (automated check).
@@ -43,14 +43,14 @@ Python 3.12 · pandas · Streamlit · Plotly · Claude API (`anthropic`) · pyth
 ## Milestones
 - [x] **0. Environment & scaffolding**
 - [x] **1. Local tooling:** Python 3.12.10, Git 2.56.0, `.venv`, initial commit
-- [x] **2. Data discovery & validation:** `DATA_SOURCES.md`, `PROJECT_DECISIONS.md`, `ANTHROPIC_ROLE_ALIGNMENT.md`
+- [x] **2. Data discovery & validation:** `DATA_SOURCES.md`, `PROJECT_DECISIONS.md`
 - [x] **3. Data acquisition, connector & data card** (7 Nov 2026): `BrazilSIPNIConnector`, canonical schema, coverage safeguards, `DATA_CARD.md`, 29/29 tests pass
 - [x] **4. Deterministic signals & evidence packets** (7 Nov 2026): rules R1–R5 + `insufficient_evidence`, configurable thresholds, weighted state benchmark, labelled arithmetic decomposition, schema-validated packets with grounding and language checks; 63/63 tests pass
 - [x] **5. Claude integration & evaluation: OFFLINE COMPLETE, LIVE VALIDATION DEFERRED** (7 Nov 2026). The integration is implemented and passes 106 offline tests, but **it has not been validated with a live API call**. The owner chose not to set up API billing for now.
 - [x] **6. Streamlit dashboard** (7 Nov 2026): `app/streamlit_app.py` with 5 tabs, health-region filters, signal summaries, verified observations, labelled offline demonstration briefs, a disabled live-Claude option, and safe handling of missing, altered or empty data; 122 tests pass. *Original scope:* filters, charts, signal table, "Draft investigation brief", export; `docs/SECURITY_AND_GOVERNANCE.md`
-- [x] **7. Portfolio readiness, responsible AI and enablement** (Nov 2026): `docs/ARCHITECTURE.md`, `docs/SECURITY_AND_GOVERNANCE.md` (v2), `docs/EVALUATION_REPORT.md`, `docs/REUSE_GUIDE.md`, `prompts/templates/brief_template.md`, `docs/workshop/` (simulated), `docs/PILOT_PLAN.md` (proposal), recruiter-facing README. No new integrations, no paid calls. *Original scope:* reference design, adapter guide (WHO admin2 / DHIS2 format), prompt and eval templates, workshop/tabletop kit, field notes
+- [x] **7. Documentation, responsible AI and enablement** (Nov 2026): `docs/ARCHITECTURE.md`, `docs/SECURITY_AND_GOVERNANCE.md` (v2), `docs/EVALUATION_REPORT.md`, `docs/REUSE_GUIDE.md`, `prompts/templates/brief_template.md`, `docs/workshop/` (simulated), `docs/PILOT_PLAN.md` (proposal), rewritten README. No new integrations, no paid calls. *Original scope:* reference design, adapter guide (WHO admin2 / DHIS2 format), prompt and eval templates, workshop/tabletop kit, field notes
 - [x] **8. Publication readiness and GitHub publication** (Nov 2026): full-history secret scan, noreply commit identity, pinned dependencies, MIT licence; published at https://github.com/bhavanasurapaneni-lab/measles-signalcheck-ai
-- [x] **9. Portfolio improvements** (Nov 2026): real dashboard screenshots in the README, offline GitHub Actions CI, deep links, in-app official data download, public offline demo deployed by the owner at https://measles-signalcheck-ai.streamlit.app/ (no live Claude API generation), `docs/RESUME_PROJECT_SUMMARY.md`; 135 tests pass
+- [x] **9. Publication and public demo** (Nov 2026): real dashboard screenshots in the README, offline GitHub Actions CI, deep links, in-app official data download, public offline demo deployed by the owner at https://measles-signalcheck-ai.streamlit.app/ (no live Claude API generation); 135 tests pass
 
 ## Milestone 5: status (7 Nov 2026): OFFLINE COMPLETE, LIVE VALIDATION DEFERRED
 **The Claude API integration is implemented but has NOT been validated with a live API call.** No real Claude output has been evaluated, and $0 has been spent. Everything below was measured offline with a fake client and labelled synthetic drafts. The live harness (`evals/run_live.py`, with a spend ledger and per-call worst-case gate) is kept for if and when the owner enables live testing.

@@ -21,7 +21,7 @@ from pathlib import Path
 
 BASE = "http://tabnet.datasus.gov.br"
 OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "raw" / "brazil_sipni"
-UA = {"User-Agent": "measles-signalcheck-ai/0.1 (portfolio research; aggregate public data)"}
+UA = {"User-Agent": "measles-signalcheck-ai/0.1 (independent research; aggregate public data)"}
 YEARS_PNI = [str(y) for y in range(2015, 2023)]          # 2015-2022
 YEARS_SINASC = [str(y) for y in range(2014, 2022)]       # 2014-2021 (births one year earlier)
 

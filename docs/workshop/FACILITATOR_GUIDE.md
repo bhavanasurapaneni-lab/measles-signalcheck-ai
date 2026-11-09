@@ -1,7 +1,7 @@
 # Facilitator Guide: "Real decline or records problem?"
 ### A simulated tabletop exercise for an immunization programme team
 
-> **SIMULATED WORKSHOP.** This material was designed for a *simulated* programme team as part of a portfolio
+> **SIMULATED WORKSHOP.** This material was designed for a *simulated* programme team as part of an independent
 > project. It has **not** been delivered to any health ministry, municipality or organisation. All figures are real
 > public data (DATASUS TabNet). The **injects** in Part 4 are **fictional scenario elements** written for practice;
 > they are not facts about São Gonçalo.

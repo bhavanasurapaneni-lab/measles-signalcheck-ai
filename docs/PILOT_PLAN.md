@@ -1,7 +1,7 @@
 # Proposed Pilot Plan: Measles SignalCheck AI
 
 > **PROPOSAL ONLY.** No public-health organisation has agreed to a pilot, and nothing has been deployed for any
-> organisation (the only hosting is a public offline portfolio demo). This plan
+> organisation (the only hosting is a public offline demo). This plan
 > describes how a pilot *could* be run with a ministry, state or municipal health department, or an NGO supporting
 > one. Targets below are **proposed success measures to agree with a partner**, not results.
 

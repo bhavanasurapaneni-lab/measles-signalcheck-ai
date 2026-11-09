@@ -4,7 +4,7 @@
 **[Implemented – process]** *(a documented practice, not enforced by code), or* **[Proposed]**
 *(required for a production deployment; not built).*
 
-> **Status:** this is a portfolio prototype. Its only deployment is a public **offline demonstration** on Streamlit
+> **Status:** this is an independent prototype. Its only deployment is a public **offline demonstration** on Streamlit
 > Community Cloud (https://measles-signalcheck-ai.streamlit.app/): public aggregate data, no API key, no live Claude
 > calls, no accounts. It has **not** been deployed for any health organisation and has **not** been through any
 > organisation's security review. The Claude API path is implemented but **has never been called with a real key**

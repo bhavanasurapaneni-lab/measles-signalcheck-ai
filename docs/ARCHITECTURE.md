@@ -86,7 +86,7 @@ Full log in `PROJECT_DECISIONS.md`.
 | **A. Local workstation** (current) | Single analyst, offline demo | Python 3.11+. Data: a 23 KB sample plus a 2.1 MB TabNet form page (region mapping) |
 | **B. Offline HTML export of briefs** | Low-connectivity field teams (the pattern the IRC case study describes) | Build an export of rendered briefs. No API needed at the point of use |
 | **C. Internal server** (ministry or NGO network) | A team of coordinators | Authentication, HTTPS, audit logging, key held server-side, an approved data-use policy (`SECURITY_AND_GOVERNANCE.md` §9) |
-| **D. Hosted demo** (Streamlit Community Cloud, **live**) | Portfolio reviewers | Demo mode only. No key needed or stored. Data downloaded from DATASUS TabNet on first visit after a restart |
+| **D. Hosted demo** (Streamlit Community Cloud, **live**) | Public visitors and evaluators | Demo mode only. No key needed or stored. Data downloaded from DATASUS TabNet on first visit after a restart |
 | **E. DHIS2-adjacent** | Ministries running DHIS2 | A new connector for a DHIS2 analytics export (`REUSE_GUIDE.md`). Aggregate data only |
 
 ## 7. Demonstrated vs not demonstrated
